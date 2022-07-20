@@ -121,7 +121,7 @@ func (k Keeper) OutgoingTxBatchExecuted(ctx sdk.Context, tokenContract types.Eth
 		if err != nil {
 			panic(sdkerrors.Wrapf(err, "invalid ERC20 address in executed batch"))
 		}
-		burnVouchers := sdk.NewCoins(erc20.GravityCoin())
+		burnVouchers := sdk.NewCoins(erc20.GravityCoin(k.ChainIdentifier))
 		if err := k.bankKeeper.BurnCoins(ctx, types.ModuleName, burnVouchers); err != nil {
 			panic(err)
 		}

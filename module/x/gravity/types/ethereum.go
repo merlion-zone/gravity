@@ -105,9 +105,9 @@ func EthAddrLessThan(e EthAddress, o EthAddress) bool {
 	return bytes.Compare([]byte(e.GetAddress().Hex()), []byte(o.GetAddress().Hex())) == -1
 }
 
-/////////////////////////
+// ///////////////////////
 //     ERC20Token      //
-/////////////////////////
+// ///////////////////////
 
 // NewERC20Token returns a new instance of an ERC20
 func NewERC20Token(amount uint64, contract string) ERC20Token {
@@ -168,13 +168,17 @@ func (i *InternalERC20Token) ToExternal() ERC20Token {
 }
 
 // GravityCoin returns the gravity representation of the ERC20
-func (i *InternalERC20Token) GravityCoin() sdk.Coin {
-	return sdk.NewCoin(GravityDenom(i.Contract), i.Amount)
+func (i *InternalERC20Token) GravityCoin(chainIdentifier ...string) sdk.Coin {
+	return sdk.NewCoin(GravityDenom(i.Contract, chainIdentifier...), i.Amount)
 }
 
 // GravityDenom converts an EthAddress to a gravity cosmos denom
-func GravityDenom(tokenContract EthAddress) string {
-	return fmt.Sprintf("%s%s%s", GravityDenomPrefix, GravityDenomSeparator, tokenContract.GetAddress().Hex())
+func GravityDenom(tokenContract EthAddress, chainIdentifier ...string) string {
+	if len(chainIdentifier) == 0 || len(chainIdentifier[0]) == 0 {
+		return fmt.Sprintf("%s%s%s", GravityDenomPrefix, GravityDenomSeparator, tokenContract.GetAddress().Hex())
+	} else {
+		return fmt.Sprintf("%s%s/%s/%s", GravityDenomPrefix, GravityDenomSeparator, chainIdentifier[0], tokenContract.GetAddress().Hex())
+	}
 }
 
 // ValidateBasic performs stateless validation
@@ -197,8 +201,13 @@ func (i *InternalERC20Token) Add(o *InternalERC20Token) (*InternalERC20Token, er
 }
 
 // GravityDenomToERC20 converts a gravity cosmos denom to an EthAddress
-func GravityDenomToERC20(denom string) (*EthAddress, error) {
+func GravityDenomToERC20(denom string, chainIdentifier ...string) (*EthAddress, error) {
 	fullPrefix := GravityDenomPrefix + GravityDenomSeparator
+	gravityDenomLen := GravityDenomLen
+	if len(chainIdentifier) > 0 && len(chainIdentifier[0]) > 0 {
+		fullPrefix += fmt.Sprintf("/%s/", chainIdentifier[0])
+		gravityDenomLen += len(chainIdentifier[0]) + 2
+	}
 	if !strings.HasPrefix(denom, fullPrefix) {
 		return nil, fmt.Errorf("denom prefix(%s) not equal to expected(%s)", denom, fullPrefix)
 	}
@@ -207,8 +216,8 @@ func GravityDenomToERC20(denom string) (*EthAddress, error) {
 	switch {
 	case err != nil:
 		return nil, fmt.Errorf("error(%s) validating ethereum contract address", err)
-	case len(denom) != GravityDenomLen:
-		return nil, fmt.Errorf("len(denom)(%d) not equal to GravityDenomLen(%d)", len(denom), GravityDenomLen)
+	case len(denom) != gravityDenomLen:
+		return nil, fmt.Errorf("len(denom)(%d) not equal to GravityDenomLen(%d)", len(denom), gravityDenomLen)
 	default:
 		return ethAddr, nil
 	}

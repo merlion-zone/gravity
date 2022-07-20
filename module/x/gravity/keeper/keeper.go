@@ -38,8 +38,8 @@ type Keeper struct {
 
 	// NOTE: If you add anything to this struct, add a nil check to ValidateMembers below!
 	cdc               codec.BinaryCodec // The wire codec for binary encoding/decoding.
-	bankKeeper        *bankkeeper.BaseKeeper
-	StakingKeeper     *stakingkeeper.Keeper
+	bankKeeper        bankkeeper.Keeper
+	StakingKeeper     types.StakingKeeper
 	SlashingKeeper    *slashingkeeper.Keeper
 	DistKeeper        *distrkeeper.Keeper
 	accountKeeper     *authkeeper.AccountKeeper
@@ -49,6 +49,8 @@ type Keeper struct {
 	AttestationHandler interface {
 		Handle(sdk.Context, types.Attestation, types.EthereumClaim) error
 	}
+
+	ChainIdentifier string
 }
 
 // Check for nil members
@@ -81,8 +83,8 @@ func NewKeeper(
 	storeKey sdk.StoreKey,
 	paramSpace paramtypes.Subspace,
 	cdc codec.BinaryCodec,
-	bankKeeper *bankkeeper.BaseKeeper,
-	stakingKeeper *stakingkeeper.Keeper,
+	bankKeeper bankkeeper.Keeper,
+	stakingKeeper types.StakingKeeper,
 	slashingKeeper *slashingkeeper.Keeper,
 	distKeeper *distrkeeper.Keeper,
 	accKeeper *authkeeper.AccountKeeper,
@@ -117,9 +119,9 @@ func NewKeeper(
 	return k
 }
 
-/////////////////////////////
+// ///////////////////////////
 //       HELPERS           //
-/////////////////////////////
+// ///////////////////////////
 
 // SendToCommunityPool handles incorrect SendToCosmos calls to the community pool, since the calls
 // have already been made on Ethereum there's nothing we can do to reverse them, and we should at least
@@ -134,9 +136,9 @@ func (k Keeper) SendToCommunityPool(ctx sdk.Context, coins sdk.Coins) error {
 	return nil
 }
 
-/////////////////////////////
+// ///////////////////////////
 //       PARAMETERS        //
-/////////////////////////////
+// ///////////////////////////
 
 // GetParams returns the parameters from the store
 func (k Keeper) GetParams(ctx sdk.Context) (params types.Params) {
@@ -297,9 +299,9 @@ func (k Keeper) GetDelegateKeys(ctx sdk.Context) []types.MsgSetOrchestratorAddre
 	return result
 }
 
-/////////////////////////////
+// ///////////////////////////
 //   Logic Call Slashing   //
-/////////////////////////////
+// ///////////////////////////
 
 // SetLastSlashedLogicCallBlock returns true if the last slashed logic call block
 // has been set in the store
@@ -342,9 +344,9 @@ func (k Keeper) GetUnSlashedLogicCalls(ctx sdk.Context, maxHeight uint64) (out [
 	return
 }
 
-/////////////////////////////
+// ///////////////////////////
 //       Parameters        //
-/////////////////////////////
+// ///////////////////////////
 
 // prefixRange turns a prefix into a (start, end) range. The start is the given prefix value and
 // the end is calculated by adding 1 bit to the start value. Nil is not allowed as prefix.

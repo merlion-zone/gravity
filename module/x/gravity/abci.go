@@ -522,3 +522,44 @@ func pruneAttestations(ctx sdk.Context, k keeper.Keeper) {
 		}
 	}
 }
+
+func Slashing(ctx sdk.Context, k keeper.Keeper) {
+	slashing(ctx, k)
+}
+
+func ValsetSlashing(ctx sdk.Context, k keeper.Keeper, params types.Params) {
+	valsetSlashing(ctx, k, params)
+}
+
+func BatchSlashing(ctx sdk.Context, k keeper.Keeper, params types.Params) {
+	batchSlashing(ctx, k, params)
+}
+
+func LogicCallSlashing(ctx sdk.Context, k keeper.Keeper, params types.Params) {
+	logicCallSlashing(ctx, k, params)
+}
+
+func AttestationTally(ctx sdk.Context, k keeper.Keeper) {
+	attestationTally(ctx, k)
+}
+
+func CleanupTimedOutBatches(ctx sdk.Context, k keeper.Keeper) {
+	cleanupTimedOutBatches(ctx, k)
+}
+
+func CleanupTimedOutLogicCalls(ctx sdk.Context, k keeper.Keeper) {
+	cleanupTimedOutLogicCalls(ctx, k)
+}
+
+func CreateValsetRequest(ctx sdk.Context, k keeper.Keeper) {
+	createValsets(ctx, k)
+}
+
+func PruneValsets(ctx sdk.Context, k keeper.Keeper) {
+	params := k.GetParams(ctx)
+	pruneValsets(ctx, k, params)
+}
+
+func PruneAttestations(ctx sdk.Context, k keeper.Keeper) {
+	pruneAttestations(ctx, k)
+}

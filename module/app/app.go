@@ -2,12 +2,13 @@ package app
 
 import (
 	"fmt"
-	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	"io"
 	"net/http"
 	"os"
 	"path/filepath"
 	"sync"
+
+	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 
 	"github.com/gorilla/mux"
 	"github.com/rakyll/statik/fs"
@@ -87,7 +88,7 @@ import (
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
 	// Cosmos IBC-Go
-	transfer "github.com/cosmos/ibc-go/v3/modules/apps/transfer"
+	"github.com/cosmos/ibc-go/v3/modules/apps/transfer"
 	ibctransferkeeper "github.com/cosmos/ibc-go/v3/modules/apps/transfer/keeper"
 	ibctransfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
 	ibc "github.com/cosmos/ibc-go/v3/modules/core"
@@ -115,6 +116,9 @@ import (
 	"github.com/Gravity-Bridge/Gravity-Bridge/module/x/gravity"
 	"github.com/Gravity-Bridge/Gravity-Bridge/module/x/gravity/keeper"
 	gravitytypes "github.com/Gravity-Bridge/Gravity-Bridge/module/x/gravity/types"
+	mgravity "github.com/Gravity-Bridge/Gravity-Bridge/module/x/multigravity"
+	mgravitykeeper "github.com/Gravity-Bridge/Gravity-Bridge/module/x/multigravity/keeper"
+	mgravitytypes "github.com/Gravity-Bridge/Gravity-Bridge/module/x/multigravity/types"
 )
 
 const appName = "app"
@@ -153,6 +157,7 @@ var (
 		transfer.AppModuleBasic{},
 		vesting.AppModuleBasic{},
 		gravity.AppModuleBasic{},
+		mgravity.AppModuleBasic{},
 		bech32ibc.AppModuleBasic{},
 	)
 
@@ -167,6 +172,7 @@ var (
 		govtypes.ModuleName:            {authtypes.Burner},
 		ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
 		gravitytypes.ModuleName:        {authtypes.Minter, authtypes.Burner},
+		mgravitytypes.ModuleName:       {authtypes.Minter, authtypes.Burner},
 	}
 
 	// module accounts that are allowed to receive tokens
@@ -226,6 +232,7 @@ type Gravity struct {
 	evidenceKeeper    *evidencekeeper.Keeper
 	ibcTransferKeeper *ibctransferkeeper.Keeper
 	gravityKeeper     *keeper.Keeper
+	mgravityKeeper    *mgravitykeeper.Keeper
 	bech32IbcKeeper   *bech32ibckeeper.Keeper
 
 	// make scoped keepers public for test purposes
@@ -298,6 +305,9 @@ func (app Gravity) ValidateMembers() {
 	if app.gravityKeeper == nil {
 		panic("Nil gravityKeeper!")
 	}
+	if app.mgravityKeeper == nil {
+		panic("Nil mgravityKeeper!")
+	}
 	if app.bech32IbcKeeper == nil {
 		panic("Nil bech32IbcKeeper!")
 	}
@@ -349,11 +359,12 @@ func NewGravityApp(
 		ibchost.StoreKey, upgradetypes.StoreKey, evidencetypes.StoreKey,
 		ibctransfertypes.StoreKey, capabilitytypes.StoreKey,
 		gravitytypes.StoreKey, bech32ibctypes.StoreKey,
+		mgravitytypes.StoreKey,
 	)
 	tKeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
 	memKeys := sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
 
-	//nolint: exhaustruct
+	// nolint: exhaustruct
 	var app = &Gravity{
 		BaseApp:           &bApp,
 		legacyAmino:       legacyAmino,
@@ -487,12 +498,29 @@ func NewGravityApp(
 	)
 	app.gravityKeeper = &gravityKeeper
 
+	mgravityKeeper := mgravitykeeper.NewKeeper(
+		app.BaseApp,
+		keys[mgravitytypes.StoreKey],
+		app.GetSubspace(mgravitytypes.ModuleName),
+		appCodec,
+		&bankKeeper,
+		&stakingKeeper,
+		&slashingKeeper,
+		&distrKeeper,
+		&accountKeeper,
+		&ibcTransferKeeper,
+		&bech32IbcKeeper,
+		&paramsKeeper,
+	)
+	app.mgravityKeeper = &mgravityKeeper
+
 	// Add the staking hooks from distribution, slashing, and gravity to staking
 	stakingKeeper.SetHooks(
 		stakingtypes.NewMultiStakingHooks(
 			distrKeeper.Hooks(),
 			slashingKeeper.Hooks(),
 			gravityKeeper.Hooks(),
+			mgravityKeeper.Hooks(),
 		),
 	)
 
@@ -522,6 +550,7 @@ func NewGravityApp(
 		AddRoute(upgradetypes.RouterKey, upgrade.NewSoftwareUpgradeProposalHandler(upgradeKeeper)).
 		AddRoute(ibcclienttypes.RouterKey, ibcclient.NewClientProposalHandler(ibcKeeper.ClientKeeper)).
 		AddRoute(gravitytypes.RouterKey, keeper.NewGravityProposalHandler(gravityKeeper)).
+		AddRoute(mgravitytypes.RouterKey, mgravitykeeper.NewGravityProposalHandler(mgravityKeeper)).
 		AddRoute(bech32ibctypes.RouterKey, bech32ibc.NewBech32IBCProposalHandler(*app.bech32IbcKeeper))
 
 	govKeeper := govkeeper.NewKeeper(
@@ -629,6 +658,10 @@ func NewGravityApp(
 			gravityKeeper,
 			bankKeeper,
 		),
+		mgravity.NewAppModule(
+			mgravityKeeper,
+			bankKeeper,
+		),
 		bech32ibc.NewAppModule(
 			appCodec,
 			bech32IbcKeeper,
@@ -653,6 +686,7 @@ func NewGravityApp(
 		ibctransfertypes.ModuleName,
 		bech32ibctypes.ModuleName,
 		gravitytypes.ModuleName,
+		mgravitytypes.ModuleName,
 		genutiltypes.ModuleName,
 		authz.ModuleName,
 		govtypes.ModuleName,
@@ -663,6 +697,7 @@ func NewGravityApp(
 		govtypes.ModuleName,
 		stakingtypes.ModuleName,
 		gravitytypes.ModuleName,
+		mgravitytypes.ModuleName,
 		upgradetypes.ModuleName,
 		capabilitytypes.ModuleName,
 		minttypes.ModuleName,
@@ -695,6 +730,7 @@ func NewGravityApp(
 		ibctransfertypes.ModuleName,
 		authz.ModuleName,
 		gravitytypes.ModuleName,
+		mgravitytypes.ModuleName,
 		bech32ibctypes.ModuleName,
 		crisistypes.ModuleName,
 		vestingtypes.ModuleName,
@@ -757,6 +793,7 @@ func NewGravityApp(
 	}
 
 	keeper.RegisterProposalTypes()
+	mgravitykeeper.RegisterProposalTypes()
 
 	// We don't allow anything to be nil
 	app.ValidateMembers()
@@ -946,6 +983,7 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(crisistypes.ModuleName)
 	paramsKeeper.Subspace(ibctransfertypes.ModuleName)
 	paramsKeeper.Subspace(gravitytypes.ModuleName)
+	paramsKeeper.Subspace(mgravitytypes.ModuleName)
 	paramsKeeper.Subspace(ibchost.ModuleName)
 
 	return paramsKeeper
