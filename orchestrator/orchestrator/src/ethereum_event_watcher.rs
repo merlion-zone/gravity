@@ -6,7 +6,7 @@ use cosmos_gravity::{query::get_last_event_nonce_for_validator, send::send_ether
 use deep_space::Contact;
 use deep_space::{
     coin::Coin,
-    private_key::{CosmosPrivateKey, PrivateKey},
+    private_key::{CosmosPrivateKey, EthermintPrivateKey, PrivateKey},
 };
 use gravity_proto::gravity::query_client::QueryClient as GravityQueryClient;
 use gravity_utils::get_with_retry::get_block_number_with_retry;
@@ -35,7 +35,7 @@ pub async fn check_for_events(
     contact: &Contact,
     grpc_client: &mut GravityQueryClient<Channel>,
     gravity_contract_address: EthAddress,
-    our_private_key: CosmosPrivateKey,
+    our_private_key: EthermintPrivateKey,
     fee: Coin,
     starting_block: Uint256,
     block_delay: Uint256,

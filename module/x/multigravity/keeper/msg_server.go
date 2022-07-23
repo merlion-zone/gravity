@@ -3,6 +3,8 @@ package keeper
 import (
 	"context"
 
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+
 	"github.com/Gravity-Bridge/Gravity-Bridge/module/x/gravity/types"
 	mgravitytypes "github.com/Gravity-Bridge/Gravity-Bridge/module/x/multigravity/types"
 )
@@ -18,7 +20,11 @@ func NewMsgServerImpl(keeper Keeper) mgravitytypes.MsgServer {
 }
 
 func (m msgServer) SetOrchestratorAddress(c context.Context, msg *types.MsgSetOrchestratorAddress) (*types.MsgSetOrchestratorAddressResponse, error) {
-	for _, server := range m.SubKeeperServers() {
+	servers := m.SubKeeperServers()
+	if len(servers) == 0 {
+		return nil, sdkerrors.Wrap(mgravitytypes.ErrChainNotFound, "")
+	}
+	for _, server := range servers {
 		_, err := server.SetOrchestratorAddress(c, msg)
 		if err != nil {
 			return nil, err

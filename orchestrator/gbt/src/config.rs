@@ -17,7 +17,7 @@ pub const CONFIG_NAME: &str = "config.toml";
 /// to be hand edited.
 pub const KEYS_NAME: &str = "keys.json";
 /// The folder name for the config
-pub const CONFIG_FOLDER: &str = ".gbt";
+pub const CONFIG_FOLDER: &str = ".mergravity";
 
 /// The keys storage struct, including encrypted and un-encrypted local keys
 /// un-encrypted keys provide for orchestrator start and relayer start functions
@@ -53,6 +53,7 @@ pub fn init_config(_init_ops: InitOpts, home_dir: PathBuf) {
             toml::to_string(&KeyStorage::default()).unwrap(),
         )
         .expect("Unable to write config file");
+        info!("Created config directory: {}", home_dir.to_str().unwrap())
     }
 }
 

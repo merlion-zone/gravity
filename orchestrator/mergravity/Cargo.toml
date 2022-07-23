@@ -1,0 +1,30 @@
+[package]
+name = "mergravity"
+version = "0.1.0"
+authors = ["The Merlion Team"]
+edition = "2018"
+license = "Apache-2.0"
+description = "Gravity orchestrator and relayer CLI for Merlion blockchain."
+
+[dependencies]
+gbt = {path = "../gbt"}
+
+deep_space = {version = "2.11", features = ["ethermint"]}
+serde_derive = "1.0"
+serde_json = "1.0"
+clarity = "0.5"
+clap = {version="3.0.0-rc.7", features=["derive"]}
+serde = "1.0"
+actix-rt = "2.2"
+lazy_static = "1"
+url = "2"
+web30 = "0.19"
+env_logger = "0.9"
+log = "0.4"
+openssl-probe = "0.1"
+tokio = "1.4"
+rand = "0.8"
+dirs = "4.0"
+toml = "0.5"
+prost = "0.10"
+futures = "0.3"

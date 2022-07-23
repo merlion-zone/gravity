@@ -20,7 +20,7 @@ use deep_space::Contact;
 use deep_space::{client::ChainStatus, utils::FeeInfo};
 use deep_space::{
     coin::Coin,
-    private_key::{CosmosPrivateKey, PrivateKey},
+    private_key::{CosmosPrivateKey, EthermintPrivateKey, PrivateKey},
 };
 use futures::future::{join, join3};
 use gravity_proto::cosmos_sdk_proto::cosmos::base::abci::v1beta1::TxResponse;
@@ -49,7 +49,7 @@ pub const ETH_ORACLE_LOOP_SPEED: Duration = Duration::from_secs(13);
 /// of all execution time sleeping this shouldn't be an issue at all.
 #[allow(clippy::too_many_arguments)]
 pub async fn orchestrator_main_loop(
-    cosmos_key: CosmosPrivateKey,
+    cosmos_key: EthermintPrivateKey,
     ethereum_key: EthPrivateKey,
     web3: Web3,
     contact: Contact,
@@ -101,7 +101,7 @@ const DELAY: Duration = Duration::from_secs(5);
 /// This function is responsible for making sure that Ethereum events are retrieved from the Ethereum blockchain
 /// and ferried over to Cosmos where they will be used to issue tokens or process batches.
 pub async fn eth_oracle_main_loop(
-    cosmos_key: CosmosPrivateKey,
+    cosmos_key: EthermintPrivateKey,
     web3: Web3,
     contact: Contact,
     grpc_client: GravityQueryClient<Channel>,
@@ -247,7 +247,7 @@ pub async fn eth_oracle_main_loop(
 /// since these are provided directly by a trusted Cosmsos node they can simply be assumed to be
 /// valid and signed off on.
 pub async fn eth_signer_main_loop(
-    cosmos_key: CosmosPrivateKey,
+    cosmos_key: EthermintPrivateKey,
     ethereum_key: EthPrivateKey,
     contact: Contact,
     grpc_client: GravityQueryClient<Channel>,

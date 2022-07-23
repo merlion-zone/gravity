@@ -4,7 +4,7 @@ use crate::config::load_keys;
 use crate::utils::print_relaying_explanation;
 use clarity::constants::ZERO_ADDRESS;
 use cosmos_gravity::query::get_gravity_params;
-use deep_space::{CosmosPrivateKey, PrivateKey};
+use deep_space::{CosmosPrivateKey, EthermintPrivateKey, PrivateKey};
 use gravity_utils::connection_prep::check_for_fee;
 use gravity_utils::connection_prep::{
     check_for_eth, create_rpc_connections, wait_for_cosmos_node_ready,
@@ -58,7 +58,7 @@ pub async fn relayer(
     } else if config_exists(home_dir) {
         let keys = load_keys(home_dir);
         keys.orchestrator_phrase
-            .map(|stored_key| CosmosPrivateKey::from_phrase(&stored_key, "").unwrap())
+            .map(|stored_key| EthermintPrivateKey::from_phrase(&stored_key, "").unwrap())
     } else {
         None
     };
