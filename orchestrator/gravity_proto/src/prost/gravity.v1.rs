@@ -1,11 +1,3 @@
-/// SignType defines messages that have been signed by an orchestrator
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
-#[repr(i32)]
-pub enum SignType {
-    Unspecified = 0,
-    OrchestratorSignedMultiSigUpdate = 1,
-    OrchestratorSignedWithdrawBatch = 2,
-}
 /// BridgeValidator represents a validator's ETH address and its power
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct BridgeValidator {
@@ -2130,4 +2122,12 @@ pub mod query_client {
             self.inner.unary(request.into_request(), path, codec).await
         }
     }
+}
+/// SignType defines messages that have been signed by an orchestrator
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
+#[repr(i32)]
+pub enum SignType {
+    Unspecified = 0,
+    OrchestratorSignedMultiSigUpdate = 1,
+    OrchestratorSignedWithdrawBatch = 2,
 }

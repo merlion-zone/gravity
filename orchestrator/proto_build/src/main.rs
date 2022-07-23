@@ -36,6 +36,8 @@ const GRPC_CLIENT_ATTRIBUTES: &[&str] = &[
 ];
 /// Regex for locating instances of `cosmos-sdk-proto` in prost/tonic build output
 const COSMOS_SDK_PROTO_REGEX: &str = "(super::)+cosmos";
+/// Regex for locating instances of `gravity` in prost/tonic build output
+const GRAVITY_PROTO_REGEX: &str = "super::super::gravity::v1";
 
 /// A temporary directory for proto building
 const TMP_PATH: &str = "/tmp/gravity/";
@@ -72,7 +74,7 @@ fn compile_protos(out_dir: &Path, tmp_dir: &Path) {
     third_party_proto_include_dir.push("module/third_party/proto");
 
     // Paths
-    let proto_paths = [gravity_proto_dir];
+    let proto_paths = [gravity_proto_dir, multigravity_proto_dir];
     // we need to have an include which is just the folder of our protos to satisfy protoc
     // which insists that any passed file be included in a directory passed as an include
     let proto_include_paths = [gravity_proto_include_dir, third_party_proto_include_dir];
@@ -168,6 +170,10 @@ fn copy_and_patch(src: impl AsRef<Path>, dest: impl AsRef<Path>) -> io::Result<(
     let contents = Regex::new(COSMOS_SDK_PROTO_REGEX)
         .unwrap()
         .replace_all(&contents, "cosmos_sdk_proto::cosmos");
+
+    let contents = Regex::new(GRAVITY_PROTO_REGEX)
+        .unwrap()
+        .replace_all(&contents, "super::gravity");
 
     // Patch each service definition with a feature attribute
     let patched_contents =

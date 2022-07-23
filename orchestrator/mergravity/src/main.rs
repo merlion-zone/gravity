@@ -1,3 +1,5 @@
+extern crate core;
+
 use clap::Parser;
 use env_logger::Env;
 use gbt::{config, args as gargs, keys};
@@ -48,10 +50,21 @@ async fn main() {
             }
         },
         SubCommand::Orchestrator(orchestrator_opts) => {
+            check_env().unwrap();
             orchestrator(orchestrator_opts, address_prefix, &home_dir, config).await
         }
         SubCommand::Relayer(relayer_opts) => {
+            check_env().unwrap();
             relayer(relayer_opts, address_prefix, &home_dir, config.relayer).await
         }
+    }
+}
+
+fn check_env() -> Result<(), &'static str> {
+    use cosmos_gravity::CHAIN_IDENTIFIER;
+    if CHAIN_IDENTIFIER.is_empty() {
+        Err("Environment variable CHAIN_IDENTIFIER must be specified")
+    } else {
+        Ok(())
     }
 }

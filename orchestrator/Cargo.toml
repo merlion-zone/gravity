@@ -3,4 +3,4 @@ members = ["orchestrator", "cosmos_gravity", "ethereum_gravity", "gravity_utils"
 default-members = ["mergravity"]
 
 [patch.crates-io]
-deep_space = { path = "../../deep_space" }
+deep_space = { git = "https://github.com/merlion-zone/deep_space", branch = "main-merlion" }

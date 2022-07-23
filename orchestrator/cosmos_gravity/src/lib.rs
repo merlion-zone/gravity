@@ -10,3 +10,10 @@ pub mod proposals;
 pub mod query;
 pub mod send;
 pub mod utils;
+
+use lazy_static::lazy_static;
+
+lazy_static! {
+    pub static ref CHAIN_IDENTIFIER: String =
+        std::env::var("CHAIN_IDENTIFIER").unwrap_or_else(|_| "".to_string());
+}

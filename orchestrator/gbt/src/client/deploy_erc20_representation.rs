@@ -14,6 +14,8 @@ use std::{
 use tokio::time::sleep as delay_for;
 use web30::types::SendTxOption;
 
+use cosmos_gravity::CHAIN_IDENTIFIER;
+
 pub async fn deploy_erc20_representation(
     args: DeployErc20RepresentationOpts,
     address_prefix: String,
@@ -48,6 +50,7 @@ pub async fn deploy_erc20_representation(
     let res = grpc
         .denom_to_erc20(QueryDenomToErc20Request {
             denom: denom.clone(),
+            chain_identifier: CHAIN_IDENTIFIER.to_owned(),
         })
         .await;
     if let Ok(val) = res {
@@ -96,6 +99,7 @@ pub async fn deploy_erc20_representation(
                 let res = grpc
                     .denom_to_erc20(QueryDenomToErc20Request {
                         denom: denom.clone(),
+                        chain_identifier: CHAIN_IDENTIFIER.to_owned(),
                     })
                     .await;
 
@@ -118,6 +122,7 @@ pub async fn deploy_erc20_representation(
                             claim_type: String::new(),
                             nonce: 0,
                             height: 0,
+                            chain_identifier: CHAIN_IDENTIFIER.to_owned(),
                         })
                         .await;
                     match attestations {
@@ -189,6 +194,7 @@ mod tests {
                 claim_type: String::new(),
                 nonce: 0,
                 height: 0,
+                chain_identifier: CHAIN_IDENTIFIER.to_owned(),
             })
             .await
             .unwrap();

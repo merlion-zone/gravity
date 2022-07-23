@@ -10,6 +10,8 @@ use gravity_utils::{
 };
 use std::process::exit;
 
+use cosmos_gravity::CHAIN_IDENTIFIER;
+
 pub async fn cosmos_to_eth(args: CosmosToEthOpts, address_prefix: String) {
     let cosmos_key = args.cosmos_phrase;
     let gravity_coin = args.amount;
@@ -38,6 +40,7 @@ pub async fn cosmos_to_eth(args: CosmosToEthOpts, address_prefix: String) {
     let res = grpc
         .denom_to_erc20(QueryDenomToErc20Request {
             denom: gravity_coin.denom.clone(),
+            chain_identifier: CHAIN_IDENTIFIER.to_owned(),
         })
         .await;
     match res {

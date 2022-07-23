@@ -236,6 +236,7 @@ pub async fn deploy_cosmos_representing_erc20_and_check_adoption(
         let res = grpc_client
             .denom_to_erc20(QueryDenomToErc20Request {
                 denom: token_metadata.base.clone(),
+                chain_identifier: "".to_string(),
             })
             .await;
         if let Ok(res) = res {

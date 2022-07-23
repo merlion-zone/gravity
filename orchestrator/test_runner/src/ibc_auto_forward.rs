@@ -12,7 +12,7 @@ use cosmos_gravity::send::MSG_EXECUTE_IBC_AUTO_FORWARDS_TYPE_URL;
 use deep_space::address::Address as CosmosAddress;
 use deep_space::client::msgs::MSG_TRANSFER_TYPE_URL;
 use deep_space::error::CosmosGrpcError;
-use deep_space::private_key::{CosmosPrivateKey, PrivateKey};
+use deep_space::private_key::{EthermintPrivateKey, PrivateKey};
 use deep_space::utils::decode_any;
 use deep_space::utils::encode_any;
 use deep_space::{Coin as DSCoin, Contact, Msg};
@@ -52,7 +52,7 @@ pub async fn ibc_auto_forward_test(
     gravity_client: GravityQueryClient<Channel>,
     contact: &Contact,
     keys: Vec<ValidatorKeys>,
-    ibc_keys: Vec<CosmosPrivateKey>,
+    ibc_keys: Vec<EthermintPrivateKey>,
     gravity_address: EthAddress,
     erc20_address: EthAddress,
 ) {
@@ -423,7 +423,7 @@ pub async fn setup_gravity_auto_forwards(
     contact: &Contact, // Src chain's deep_space client
     prefix: String,
     source_channel: String,
-    sender: CosmosPrivateKey, // The Src chain's funds sender
+    sender: EthermintPrivateKey, // The Src chain's funds sender
     keys: &[ValidatorKeys],
 ) {
     let proposal_any = encode_any(
@@ -468,7 +468,7 @@ pub async fn test_ibc_auto_forward_happy_path(
     gravity_client: GravityQueryClient<Channel>, // Src chain's Gravity GRPC client
     dst_bank_qc: BankQueryClient<Channel>,       // Dst chain's Bank GRPC client
     dst_ibc_transfer_qc: IbcTransferQueryClient<Channel>, // Dst chain's ibc-transfer GRPC client
-    forwarder: CosmosPrivateKey, // user who submits MsgExecutePendingIbcAutoForwards
+    forwarder: EthermintPrivateKey, // user who submits MsgExecutePendingIbcAutoForwards
     dest: CosmosAddress,         // The bridged + auto-forwarded ERC20 receiver
     gravity_address: EthAddress, // Address of the gravity contract
     erc20_address: EthAddress,   // Address of the ERC20 to send to dest on ibc-test-1
@@ -510,6 +510,7 @@ pub async fn test_ibc_auto_forward_happy_path(
             MsgExecuteIbcAutoForwards {
                 forwards_to_clear: 1,
                 executor: forwarder.to_address(&ADDRESS_PREFIX).unwrap().to_string(),
+                chain_identifier: "".to_string(),
             },
         );
         let _res = contact
@@ -601,7 +602,7 @@ pub async fn wait_for_pending_ibc_auto_forwards(
     let start = Instant::now();
     while Instant::now() - start < timeout {
         let res = gravity_client
-            .get_pending_ibc_auto_forwards(QueryPendingIbcAutoForwards { limit: 0 })
+            .get_pending_ibc_auto_forwards(QueryPendingIbcAutoForwards { limit: 0, chain_identifier: "".to_string() })
             .await?
             .into_inner();
         if res.pending_ibc_auto_forwards.is_empty()
@@ -738,7 +739,7 @@ pub async fn test_ibc_auto_forward_failure<
 pub async fn setup_native_hijack(
     contact: &Contact, // Src chain's deep_space client
     source_channel: String,
-    sender: CosmosPrivateKey, // The Src chain's funds sender
+    sender: EthermintPrivateKey, // The Src chain's funds sender
     keys: &[ValidatorKeys],
 ) {
     setup_gravity_auto_forwards(

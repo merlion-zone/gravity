@@ -26,7 +26,7 @@ use clarity::{Address as EthAddress, Uint256};
 use deep_space::coin::Coin;
 use deep_space::Address as CosmosAddress;
 use deep_space::Contact;
-use deep_space::{CosmosPrivateKey, PrivateKey};
+use deep_space::{EthermintPrivateKey, PrivateKey};
 use erc_721_happy_path::erc721_happy_path_test;
 use evidence_based_slashing::evidence_based_slashing;
 use gravity_proto::gravity::query_client::QueryClient as GravityQueryClient;
@@ -123,7 +123,7 @@ lazy_static! {
     // this is the key the IBC relayer will use to send IBC messages and channel updates
     // it's a distinct address to prevent sequence collisions
     static ref RELAYER_MNEMONIC: String = "below great use captain upon ship tiger exhaust orient burger network uphold wink theory focus cloud energy flavor recall joy phone beach symptom hobby".to_string();
-    static ref RELAYER_PRIVATE_KEY: CosmosPrivateKey = CosmosPrivateKey::from_phrase(&RELAYER_MNEMONIC, "").unwrap();
+    static ref RELAYER_PRIVATE_KEY: EthermintPrivateKey = EthermintPrivateKey::from_phrase(&RELAYER_MNEMONIC, "").unwrap();
     static ref RELAYER_ADDRESS: CosmosAddress = RELAYER_PRIVATE_KEY.to_address(ADDRESS_PREFIX.as_str()).unwrap();
 }
 

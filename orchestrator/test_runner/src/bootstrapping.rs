@@ -12,7 +12,7 @@ use crate::{get_gravity_chain_id, get_ibc_chain_id, ETH_NODE};
 use crate::{utils::ValidatorKeys, COSMOS_NODE_ABCI};
 use clarity::Address as EthAddress;
 use clarity::PrivateKey as EthPrivateKey;
-use deep_space::private_key::{CosmosPrivateKey, PrivateKey, DEFAULT_COSMOS_HD_PATH};
+use deep_space::private_key::{EthermintPrivateKey, PrivateKey, DEFAULT_COSMOS_HD_PATH};
 use deep_space::Contact;
 use ibc::core::ics24_host::identifier::ChainId;
 use ibc_relayer::config::AddressType;
@@ -46,7 +46,7 @@ pub fn parse_ethereum_keys() -> Vec<EthPrivateKey> {
 }
 
 /// Parses the output of the cosmoscli keys add command to import the private key
-fn parse_phrases(filename: &str) -> (Vec<CosmosPrivateKey>, Vec<String>) {
+fn parse_phrases(filename: &str) -> (Vec<EthermintPrivateKey>, Vec<String>) {
     let file = File::open(filename).expect("Failed to find phrases");
     let reader = BufReader::new(file);
     let mut ret_keys = Vec::new();
@@ -60,7 +60,7 @@ fn parse_phrases(filename: &str) -> (Vec<CosmosPrivateKey>, Vec<String>) {
         {
             continue;
         }
-        let key = CosmosPrivateKey::from_phrase(&phrase, "").expect("Bad phrase!");
+        let key = EthermintPrivateKey::from_phrase(&phrase, "").expect("Bad phrase!");
         ret_keys.push(key);
         ret_phrases.push(phrase);
     }
@@ -74,7 +74,7 @@ fn parse_phrases(filename: &str) -> (Vec<CosmosPrivateKey>, Vec<String>) {
 /// the phrases are in increasing order, so validator 1 is the first key
 /// and so on. While validators may later fail to start it is guaranteed
 /// that we have one key for each validator in this file.
-pub fn parse_validator_keys() -> (Vec<CosmosPrivateKey>, Vec<String>) {
+pub fn parse_validator_keys() -> (Vec<EthermintPrivateKey>, Vec<String>) {
     let filename = "/validator-phrases";
     info!("Reading mnemonics from {}", filename);
     parse_phrases(filename)
@@ -82,7 +82,7 @@ pub fn parse_validator_keys() -> (Vec<CosmosPrivateKey>, Vec<String>) {
 
 /// The same as parse_validator_keys() except for a second chain accessed
 /// over IBC for testing purposes
-pub fn parse_ibc_validator_keys() -> (Vec<CosmosPrivateKey>, Vec<String>) {
+pub fn parse_ibc_validator_keys() -> (Vec<EthermintPrivateKey>, Vec<String>) {
     let filename = "/ibc-validator-phrases";
     info!("Reading mnemonics from {}", filename);
     parse_phrases(filename)
@@ -91,7 +91,7 @@ pub fn parse_ibc_validator_keys() -> (Vec<CosmosPrivateKey>, Vec<String>) {
 /// Orchestrator private keys are generated via the gravity key add
 /// command just like the validator keys themselves and stored in a
 /// similar file /orchestrator-phrases
-pub fn parse_orchestrator_keys() -> Vec<CosmosPrivateKey> {
+pub fn parse_orchestrator_keys() -> Vec<EthermintPrivateKey> {
     let filename = "/orchestrator-phrases";
     info!("Reading orchestrator phrases from {}", filename);
     let (orch_keys, _) = parse_phrases(filename);

@@ -17,8 +17,8 @@ use deep_space::address::Address as CosmosAddress;
 use deep_space::client::ChainStatus;
 use deep_space::coin::Coin;
 use deep_space::error::CosmosGrpcError;
-use deep_space::private_key::{CosmosPrivateKey, PrivateKey};
-use deep_space::{Address, Contact, EthermintPrivateKey, Fee, Msg};
+use deep_space::private_key::{EthermintPrivateKey, PrivateKey};
+use deep_space::{Address, Contact, Fee, Msg};
 use ethereum_gravity::utils::get_event_nonce;
 use futures::future::join_all;
 use gravity_proto::cosmos_sdk_proto::cosmos::bank::v1beta1::Metadata;
@@ -247,7 +247,7 @@ pub fn get_user_key(cosmos_prefix: Option<&str>) -> BridgeUserKey {
     let eth_key = EthPrivateKey::from_slice(&secret).unwrap();
     let eth_address = eth_key.to_address();
     // the destination on cosmos that sends along to the final ethereum destination
-    let cosmos_key = CosmosPrivateKey::from_secret(&secret);
+    let cosmos_key = EthermintPrivateKey::from_secret(&secret);
     let cosmos_address = cosmos_key.to_address(cosmos_prefix).unwrap();
     let mut rng = rand::thread_rng();
     let secret: [u8; 32] = rng.gen();
@@ -271,7 +271,7 @@ pub struct BridgeUserKey {
     pub eth_key: EthPrivateKey,
     // the cosmos addresses that get the funds and send them on to the dest eth addresses
     pub cosmos_address: CosmosAddress,
-    pub cosmos_key: CosmosPrivateKey,
+    pub cosmos_key: EthermintPrivateKey,
     // the location tokens are sent back to on Ethereum
     pub eth_dest_address: EthAddress,
     pub eth_dest_key: EthPrivateKey,
@@ -312,9 +312,9 @@ pub struct ValidatorKeys {
     pub eth_key: EthPrivateKey,
     /// The Orchestrator key used by this validator to submit oracle messages and signatures
     /// to the cosmos chain
-    pub orch_key: CosmosPrivateKey,
+    pub orch_key: EthermintPrivateKey,
     /// The validator key used by this validator to actually sign and produce blocks
-    pub validator_key: CosmosPrivateKey,
+    pub validator_key: EthermintPrivateKey,
     // The mnemonic phrase used to generate validator_key
     pub validator_phrase: String,
 }
@@ -411,6 +411,7 @@ pub async fn submit_false_claims(
             cosmos_receiver: cosmos_receiver.to_string(),
             ethereum_sender: ethereum_sender.to_string(),
             orchestrator: orch_addr.to_string(),
+            chain_identifier: "".to_string(),
         };
         info!("Oracle number {} submitting false deposit {:?}", i, claim);
         let msg_url = "/gravity.v1.MsgSendToCosmosClaim";

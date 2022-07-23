@@ -31,11 +31,15 @@ use gravity_utils::error::GravityError;
 use gravity_utils::types::*;
 use tonic::transport::Channel;
 
+use super::CHAIN_IDENTIFIER;
+
 /// Gets the Gravity module parameters from the Gravity module
 pub async fn get_gravity_params(
     client: &mut GravityQueryClient<Channel>,
 ) -> Result<Params, GravityError> {
-    let request = client.params(QueryParamsRequest {}).await?.into_inner();
+    let request = client.params(QueryParamsRequest {
+        chain_identifier: CHAIN_IDENTIFIER.to_owned(),
+    }).await?.into_inner();
     Ok(request.params.unwrap())
 }
 
@@ -45,7 +49,7 @@ pub async fn get_valset(
     nonce: u64,
 ) -> Result<Option<Valset>, GravityError> {
     let request = client
-        .valset_request(QueryValsetRequestRequest { nonce })
+        .valset_request(QueryValsetRequestRequest { nonce, chain_identifier: CHAIN_IDENTIFIER.to_owned() })
         .await?;
     let valset = request.into_inner().valset;
     let valset = valset.map(|v| v.into());
@@ -60,7 +64,7 @@ pub async fn get_valset(
 pub async fn get_current_valset(
     client: &mut GravityQueryClient<Channel>,
 ) -> Result<Valset, GravityError> {
-    let request = client.current_valset(QueryCurrentValsetRequest {}).await?;
+    let request = client.current_valset(QueryCurrentValsetRequest {chain_identifier: CHAIN_IDENTIFIER.to_owned()}).await?;
     let valset = request.into_inner().valset;
     if let Some(valset) = valset {
         Ok(valset.into())
@@ -82,6 +86,7 @@ pub async fn get_oldest_unsigned_valsets(
     let request = client
         .last_pending_valset_request_by_addr(QueryLastPendingValsetRequestByAddrRequest {
             address: address.to_bech32(prefix).unwrap(),
+            chain_identifier: CHAIN_IDENTIFIER.to_owned(),
         })
         .await?;
     let valsets = request.into_inner().valsets;
@@ -96,7 +101,7 @@ pub async fn get_latest_valsets(
     client: &mut GravityQueryClient<Channel>,
 ) -> Result<Vec<Valset>, GravityError> {
     let request = client
-        .last_valset_requests(QueryLastValsetRequestsRequest {})
+        .last_valset_requests(QueryLastValsetRequestsRequest {chain_identifier: CHAIN_IDENTIFIER.to_owned()})
         .await?;
     let valsets = request.into_inner().valsets;
     Ok(valsets.iter().map(|v| v.into()).collect())
@@ -108,7 +113,7 @@ pub async fn get_all_valset_confirms(
     nonce: u64,
 ) -> Result<Vec<ValsetConfirmResponse>, GravityError> {
     let request = client
-        .valset_confirms_by_nonce(QueryValsetConfirmsByNonceRequest { nonce })
+        .valset_confirms_by_nonce(QueryValsetConfirmsByNonceRequest { nonce, chain_identifier: CHAIN_IDENTIFIER.to_owned() })
         .await?;
     let confirms = request.into_inner().confirms;
     let mut parsed_confirms = Vec::new();
@@ -127,6 +132,7 @@ pub async fn get_oldest_unsigned_transaction_batches(
     let request = client
         .last_pending_batch_request_by_addr(QueryLastPendingBatchRequestByAddrRequest {
             address: address.to_bech32(prefix).unwrap(),
+            chain_identifier: CHAIN_IDENTIFIER.to_owned(),
         })
         .await?;
     let batches = request.into_inner().batch;
@@ -145,7 +151,7 @@ pub async fn get_latest_transaction_batches(
     client: &mut GravityQueryClient<Channel>,
 ) -> Result<Vec<TransactionBatch>, GravityError> {
     let request = client
-        .outgoing_tx_batches(QueryOutgoingTxBatchesRequest {})
+        .outgoing_tx_batches(QueryOutgoingTxBatchesRequest {chain_identifier: CHAIN_IDENTIFIER.to_owned()})
         .await?;
     let batches = request.into_inner().batches;
     let mut out = Vec::new();
@@ -165,6 +171,7 @@ pub async fn get_transaction_batch_signatures(
         .batch_confirms(QueryBatchConfirmsRequest {
             nonce,
             contract_address: contract_address.to_string(),
+            chain_identifier: CHAIN_IDENTIFIER.to_owned(),
         })
         .await?;
     let batch_confirms = request.into_inner().confirms;
@@ -185,6 +192,7 @@ pub async fn get_last_event_nonce_for_validator(
     let request = client
         .last_event_nonce_by_addr(QueryLastEventNonceByAddrRequest {
             address: address.to_bech32(prefix).unwrap(),
+            chain_identifier: CHAIN_IDENTIFIER.to_owned(),
         })
         .await?;
     Ok(request.into_inner().event_nonce)
@@ -195,7 +203,7 @@ pub async fn get_latest_logic_calls(
     client: &mut GravityQueryClient<Channel>,
 ) -> Result<Vec<LogicCall>, GravityError> {
     let request = client
-        .outgoing_logic_calls(QueryOutgoingLogicCallsRequest {})
+        .outgoing_logic_calls(QueryOutgoingLogicCallsRequest {chain_identifier: CHAIN_IDENTIFIER.to_owned()})
         .await?;
     let calls = request.into_inner().calls;
     let mut out = Vec::new();
@@ -214,6 +222,7 @@ pub async fn get_logic_call_signatures(
         .logic_confirms(QueryLogicConfirmsRequest {
             invalidation_id,
             invalidation_nonce,
+            chain_identifier: CHAIN_IDENTIFIER.to_owned(),
         })
         .await?;
     let call_confirms = request.into_inner().confirms;
@@ -232,6 +241,7 @@ pub async fn get_oldest_unsigned_logic_calls(
     let request = client
         .last_pending_logic_call_by_addr(QueryLastPendingLogicCallByAddrRequest {
             address: address.to_bech32(prefix).unwrap(),
+            chain_identifier: CHAIN_IDENTIFIER.to_owned(),
         })
         .await?;
     let calls = request.into_inner().call;
@@ -255,6 +265,7 @@ pub async fn get_attestations(
             claim_type: String::new(),
             nonce: 0,
             height: 0,
+            chain_identifier: CHAIN_IDENTIFIER.to_owned(),
         })
         .await?;
     let attestations = request.into_inner().attestations;
@@ -269,6 +280,7 @@ pub async fn get_pending_send_to_eth(
     let request = client
         .get_pending_send_to_eth(QueryPendingSendToEth {
             sender_address: sender_address.to_string(),
+            chain_identifier: CHAIN_IDENTIFIER.to_owned(),
         })
         .await?;
     Ok(request.into_inner())
@@ -282,7 +294,7 @@ pub async fn get_denom_to_erc20(
     denom: String,
 ) -> Result<QueryDenomToErc20Response, GravityError> {
     let request = client
-        .denom_to_erc20(QueryDenomToErc20Request { denom })
+        .denom_to_erc20(QueryDenomToErc20Request { denom, chain_identifier: CHAIN_IDENTIFIER.to_owned() })
         .await?;
     Ok(request.into_inner())
 }
@@ -297,6 +309,7 @@ pub async fn get_erc20_to_denom(
     let request = client
         .erc20_to_denom(QueryErc20ToDenomRequest {
             erc20: erc20.to_string(),
+            chain_identifier: CHAIN_IDENTIFIER.to_owned(),
         })
         .await?;
     Ok(request.into_inner())
@@ -306,7 +319,7 @@ pub async fn get_erc20_to_denom(
 pub async fn get_pending_batch_fees(
     client: &mut GravityQueryClient<Channel>,
 ) -> Result<QueryBatchFeeResponse, GravityError> {
-    let request = client.batch_fees(QueryBatchFeeRequest {}).await?;
+    let request = client.batch_fees(QueryBatchFeeRequest {chain_identifier: CHAIN_IDENTIFIER.to_owned()}).await?;
     Ok(request.into_inner())
 }
 
@@ -315,7 +328,7 @@ pub async fn get_all_pending_ibc_auto_forwards(
     grpc_client: &mut GravityQueryClient<Channel>,
 ) -> Vec<PendingIbcAutoForward> {
     let pending_forwards = grpc_client
-        .get_pending_ibc_auto_forwards(QueryPendingIbcAutoForwards { limit: 0 })
+        .get_pending_ibc_auto_forwards(QueryPendingIbcAutoForwards { limit: 0, chain_identifier: CHAIN_IDENTIFIER.to_owned() })
         .await;
     if let Err(status) = pending_forwards {
         // don't print errors during the upgrade test, which involves running

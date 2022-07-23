@@ -117,6 +117,7 @@ impl From<UnhaltBridgeProposalJson> for UnhaltBridgeProposal {
             title: v.title,
             description: v.description,
             target_nonce: v.target_nonce,
+            chain_identifier: super::CHAIN_IDENTIFIER.to_owned(),
         }
     }
 }

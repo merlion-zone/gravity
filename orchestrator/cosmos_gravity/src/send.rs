@@ -27,6 +27,8 @@ use std::{collections::HashMap, time::Duration};
 
 use crate::utils::BadSignatureEvidence;
 
+use super::CHAIN_IDENTIFIER;
+
 pub const MEMO: &str = "Sent using Althea Gravity Bridge Orchestrator";
 pub const TIMEOUT: Duration = Duration::from_secs(60);
 
@@ -117,6 +119,7 @@ pub async fn send_valset_confirms(
             eth_address: our_eth_address.to_string(),
             nonce: valset.nonce,
             signature: bytes_to_hex_str(&eth_signature.to_bytes()),
+            chain_identifier: CHAIN_IDENTIFIER.to_owned(),
         };
         let msg = Msg::new(MSG_VALSET_CONFIRM_TYPE_URL, confirm);
         messages.push(msg);
@@ -163,6 +166,7 @@ pub async fn send_batch_confirm(
             eth_signer: our_eth_address.to_string(),
             nonce: batch.nonce,
             signature: bytes_to_hex_str(&eth_signature.to_bytes()),
+            chain_identifier: CHAIN_IDENTIFIER.to_owned(),
         };
         let msg = Msg::new(MSG_CONFIRM_BATCH_TYPE_URL, confirm);
         messages.push(msg);
@@ -207,6 +211,7 @@ pub async fn send_logic_call_confirm(
             signature: bytes_to_hex_str(&eth_signature.to_bytes()),
             invalidation_id: bytes_to_hex_str(&call.invalidation_id),
             invalidation_nonce: call.invalidation_nonce,
+            chain_identifier: CHAIN_IDENTIFIER.to_owned(),
         };
         let msg = Msg::new(MSG_CONFIRM_LOGIC_CALL_TYPE_URL, confirm);
         messages.push(msg);
@@ -253,6 +258,7 @@ pub async fn send_ethereum_claims(
             cosmos_receiver: deposit.destination,
             ethereum_sender: deposit.sender.to_string(),
             orchestrator: our_address.to_string(),
+            chain_identifier: CHAIN_IDENTIFIER.to_owned(),
         };
         let msg = Msg::new(MSG_SEND_TO_COSMOS_CLAIM_TYPE_URL, claim);
         assert!(unordered_msgs.insert(deposit.event_nonce, msg).is_none());
@@ -264,6 +270,7 @@ pub async fn send_ethereum_claims(
             token_contract: withdraw.erc20.to_string(),
             batch_nonce: withdraw.batch_nonce,
             orchestrator: our_address.to_string(),
+            chain_identifier: CHAIN_IDENTIFIER.to_owned(),
         };
         let msg = Msg::new(MSG_BATCH_SEND_TO_ETH_TYPE_URL, claim);
         assert!(unordered_msgs.insert(withdraw.event_nonce, msg).is_none());
@@ -278,6 +285,7 @@ pub async fn send_ethereum_claims(
             symbol: deploy.symbol,
             decimals: deploy.decimals as u64,
             orchestrator: our_address.to_string(),
+            chain_identifier: CHAIN_IDENTIFIER.to_owned(),
         };
         let msg = Msg::new(MSG_ERC20_DEPLOYED_CLAIM_TYPE_URL, claim);
         assert!(unordered_msgs.insert(deploy.event_nonce, msg).is_none());
@@ -289,6 +297,7 @@ pub async fn send_ethereum_claims(
             invalidation_id: call.invalidation_id,
             invalidation_nonce: call.invalidation_nonce,
             orchestrator: our_address.to_string(),
+            chain_identifier: CHAIN_IDENTIFIER.to_owned(),
         };
         let msg = Msg::new(MSG_LOGIC_CALL_EXECUTED_CLAIM_TYPE_URL, claim);
         assert!(unordered_msgs.insert(call.event_nonce, msg).is_none());
@@ -302,6 +311,7 @@ pub async fn send_ethereum_claims(
             reward_amount: valset.reward_amount.to_string(),
             reward_token: valset.reward_token.unwrap_or(*ZERO_ADDRESS).to_string(),
             orchestrator: our_address.to_string(),
+            chain_identifier: CHAIN_IDENTIFIER.to_owned(),
         };
         let msg = Msg::new(MSG_VALSET_UPDATED_CLAIM_TYPE_URL, claim);
         assert!(unordered_msgs.insert(valset.event_nonce, msg).is_none());
@@ -367,6 +377,7 @@ pub async fn send_to_eth(
         eth_dest: destination.to_string(),
         amount: Some(amount.into()),
         bridge_fee: Some(bridge_fee.clone().into()),
+        chain_identifier: CHAIN_IDENTIFIER.to_owned(),
     };
 
     let msg = Msg::new(MSG_SEND_TO_ETH_TYPE_URL, msg_send_to_eth);
@@ -392,6 +403,7 @@ pub async fn send_request_batch(
     let msg_request_batch = MsgRequestBatch {
         sender: our_address.to_string(),
         denom,
+        chain_identifier: CHAIN_IDENTIFIER.to_owned(),
     };
     let msg = Msg::new(MSG_REQUEST_BATCH_TYPE_URL, msg_request_batch);
 
@@ -427,6 +439,7 @@ pub async fn submit_bad_signature_evidence(
         subject: Some(any),
         signature: bytes_to_hex_str(&signature.to_bytes()),
         sender: our_address.to_string(),
+        chain_identifier: CHAIN_IDENTIFIER.to_owned(),
     };
 
     let msg = Msg::new(
@@ -457,6 +470,7 @@ pub async fn cancel_send_to_eth(
     let msg_cancel_send_to_eth = MsgCancelSendToEth {
         transaction_id,
         sender: our_address.to_string(),
+        chain_identifier: CHAIN_IDENTIFIER.to_owned(),
     };
 
     let msg = Msg::new(MSG_CANCEL_SEND_TO_ETH_TYPE_URL, msg_cancel_send_to_eth);
@@ -485,6 +499,7 @@ pub async fn execute_pending_ibc_auto_forwards(
         MsgExecuteIbcAutoForwards {
             forwards_to_clear,
             executor: cosmos_addr.to_string(),
+            chain_identifier: CHAIN_IDENTIFIER.to_owned(),
         },
     );
     let timeout = Duration::from_secs(60);
