@@ -37,7 +37,7 @@ func NewGravityProposalHandler(k Keeper) govtypes.Handler {
 		case *mgravitytypes.UpdateChainParamsProposal:
 			return k.HandleUpdateChainParamsProposal(ctx, c)
 		case *mgravitytypes.UnhaltBridgeProposal:
-			subKeeper, err := k.SubKeeper(c.ChainIdentifier)
+			subKeeper, err := k.SubKeeper(ctx, c.ChainIdentifier)
 			if err != nil {
 				return err
 			}

@@ -11,8 +11,8 @@ func (k Keeper) Hooks() Hooks {
 }
 
 func (h Hooks) AfterValidatorBeginUnbonding(ctx sdk.Context, consAddr sdk.ConsAddress, valAddr sdk.ValAddress) {
-	for _, subKeeper := range h.k.SubKeepers() {
-		subKeeper.Keeper.Hooks().AfterValidatorBeginUnbonding(ctx, consAddr, valAddr)
+	for _, subKeeper := range h.k.SubKeepers(ctx) {
+		subKeeper.Hooks().AfterValidatorBeginUnbonding(ctx, consAddr, valAddr)
 	}
 }
 

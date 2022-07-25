@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"sort"
 
+	"github.com/cosmos/cosmos-sdk/store/prefix"
 	gethcommon "github.com/ethereum/go-ethereum/common"
 
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -119,6 +120,14 @@ func NewKeeper(
 	return k
 }
 
+func (k Keeper) SubStore(ctx sdk.Context) sdk.KVStore {
+	if len(k.ChainIdentifier) == 0 {
+		return ctx.KVStore(k.storeKey)
+	} else {
+		return prefix.NewStore(ctx.KVStore(k.storeKey), []byte(k.ChainIdentifier))
+	}
+}
+
 // ///////////////////////////
 //       HELPERS           //
 // ///////////////////////////
@@ -225,7 +234,7 @@ func (k Keeper) UnpackAttestationClaim(att *types.Attestation) (types.EthereumCl
 //
 // For the time being this will serve
 func (k Keeper) GetDelegateKeys(ctx sdk.Context) []types.MsgSetOrchestratorAddress {
-	store := ctx.KVStore(k.storeKey)
+	store := k.SubStore(ctx)
 	prefix := types.EthAddressByValidatorKey
 	iter := store.Iterator(prefixRange(prefix))
 	defer iter.Close()
@@ -250,7 +259,7 @@ func (k Keeper) GetDelegateKeys(ctx sdk.Context) []types.MsgSetOrchestratorAddre
 		ethAddresses[valAddress.String()] = ethAddress.GetAddress()
 	}
 
-	store = ctx.KVStore(k.storeKey)
+	store = k.SubStore(ctx)
 	prefix = types.KeyOrchestratorAddress
 	iter = store.Iterator(prefixRange(prefix))
 	defer iter.Close()
@@ -306,7 +315,7 @@ func (k Keeper) GetDelegateKeys(ctx sdk.Context) []types.MsgSetOrchestratorAddre
 // SetLastSlashedLogicCallBlock returns true if the last slashed logic call block
 // has been set in the store
 func (k Keeper) HasLastSlashedLogicCallBlock(ctx sdk.Context) bool {
-	store := ctx.KVStore(k.storeKey)
+	store := k.SubStore(ctx)
 	return store.Has(types.LastSlashedLogicCallBlock)
 }
 
@@ -317,13 +326,13 @@ func (k Keeper) SetLastSlashedLogicCallBlock(ctx sdk.Context, blockHeight uint64
 		panic("Attempted to decrement LastSlashedBatchBlock")
 	}
 
-	store := ctx.KVStore(k.storeKey)
+	store := k.SubStore(ctx)
 	store.Set(types.LastSlashedLogicCallBlock, types.UInt64Bytes(blockHeight))
 }
 
 // GetLastSlashedLogicCallBlock returns the latest slashed logic call block
 func (k Keeper) GetLastSlashedLogicCallBlock(ctx sdk.Context) uint64 {
-	store := ctx.KVStore(k.storeKey)
+	store := k.SubStore(ctx)
 	bytes := store.Get(types.LastSlashedLogicCallBlock)
 
 	if len(bytes) == 0 {

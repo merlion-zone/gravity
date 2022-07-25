@@ -18,7 +18,7 @@ func (k Keeper) Chains(c context.Context, req *mgravitytypes.QueryChainsRequest)
 }
 
 func (k Keeper) Params(c context.Context, req *mgravitytypes.QueryParamsRequest) (*mgravitytypes.QueryParamsResponse, error) {
-	subKeeper, err := k.SubKeeper(req.ChainIdentifier)
+	subKeeper, err := k.SubKeeper(sdk.UnwrapSDKContext(c), req.ChainIdentifier)
 	if err != nil {
 		return nil, err
 	}
@@ -30,7 +30,7 @@ func (k Keeper) Params(c context.Context, req *mgravitytypes.QueryParamsRequest)
 }
 
 func (k Keeper) CurrentValset(c context.Context, req *mgravitytypes.QueryCurrentValsetRequest) (*mgravitytypes.QueryCurrentValsetResponse, error) {
-	subKeeper, err := k.SubKeeper(req.ChainIdentifier)
+	subKeeper, err := k.SubKeeper(sdk.UnwrapSDKContext(c), req.ChainIdentifier)
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +42,7 @@ func (k Keeper) CurrentValset(c context.Context, req *mgravitytypes.QueryCurrent
 }
 
 func (k Keeper) ValsetRequest(c context.Context, req *mgravitytypes.QueryValsetRequestRequest) (*mgravitytypes.QueryValsetRequestResponse, error) {
-	subKeeper, err := k.SubKeeper(req.ChainIdentifier)
+	subKeeper, err := k.SubKeeper(sdk.UnwrapSDKContext(c), req.ChainIdentifier)
 	if err != nil {
 		return nil, err
 	}
@@ -54,7 +54,7 @@ func (k Keeper) ValsetRequest(c context.Context, req *mgravitytypes.QueryValsetR
 }
 
 func (k Keeper) ValsetConfirm(c context.Context, req *mgravitytypes.QueryValsetConfirmRequest) (*mgravitytypes.QueryValsetConfirmResponse, error) {
-	subKeeper, err := k.SubKeeper(req.ChainIdentifier)
+	subKeeper, err := k.SubKeeper(sdk.UnwrapSDKContext(c), req.ChainIdentifier)
 	if err != nil {
 		return nil, err
 	}
@@ -69,7 +69,7 @@ func (k Keeper) ValsetConfirm(c context.Context, req *mgravitytypes.QueryValsetC
 }
 
 func (k Keeper) ValsetConfirmsByNonce(c context.Context, req *mgravitytypes.QueryValsetConfirmsByNonceRequest) (*mgravitytypes.QueryValsetConfirmsByNonceResponse, error) {
-	subKeeper, err := k.SubKeeper(req.ChainIdentifier)
+	subKeeper, err := k.SubKeeper(sdk.UnwrapSDKContext(c), req.ChainIdentifier)
 	if err != nil {
 		return nil, err
 	}
@@ -81,7 +81,7 @@ func (k Keeper) ValsetConfirmsByNonce(c context.Context, req *mgravitytypes.Quer
 }
 
 func (k Keeper) LastValsetRequests(c context.Context, req *mgravitytypes.QueryLastValsetRequestsRequest) (*mgravitytypes.QueryLastValsetRequestsResponse, error) {
-	subKeeper, err := k.SubKeeper(req.ChainIdentifier)
+	subKeeper, err := k.SubKeeper(sdk.UnwrapSDKContext(c), req.ChainIdentifier)
 	if err != nil {
 		return nil, err
 	}
@@ -93,7 +93,7 @@ func (k Keeper) LastValsetRequests(c context.Context, req *mgravitytypes.QueryLa
 }
 
 func (k Keeper) LastPendingValsetRequestByAddr(c context.Context, req *mgravitytypes.QueryLastPendingValsetRequestByAddrRequest) (*mgravitytypes.QueryLastPendingValsetRequestByAddrResponse, error) {
-	subKeeper, err := k.SubKeeper(req.ChainIdentifier)
+	subKeeper, err := k.SubKeeper(sdk.UnwrapSDKContext(c), req.ChainIdentifier)
 	if err != nil {
 		return nil, err
 	}
@@ -105,7 +105,7 @@ func (k Keeper) LastPendingValsetRequestByAddr(c context.Context, req *mgravityt
 }
 
 func (k Keeper) LastPendingBatchRequestByAddr(c context.Context, req *mgravitytypes.QueryLastPendingBatchRequestByAddrRequest) (*mgravitytypes.QueryLastPendingBatchRequestByAddrResponse, error) {
-	subKeeper, err := k.SubKeeper(req.ChainIdentifier)
+	subKeeper, err := k.SubKeeper(sdk.UnwrapSDKContext(c), req.ChainIdentifier)
 	if err != nil {
 		return nil, err
 	}
@@ -117,7 +117,7 @@ func (k Keeper) LastPendingBatchRequestByAddr(c context.Context, req *mgravityty
 }
 
 func (k Keeper) LastPendingLogicCallByAddr(c context.Context, req *mgravitytypes.QueryLastPendingLogicCallByAddrRequest) (*mgravitytypes.QueryLastPendingLogicCallByAddrResponse, error) {
-	subKeeper, err := k.SubKeeper(req.ChainIdentifier)
+	subKeeper, err := k.SubKeeper(sdk.UnwrapSDKContext(c), req.ChainIdentifier)
 	if err != nil {
 		return nil, err
 	}
@@ -129,7 +129,7 @@ func (k Keeper) LastPendingLogicCallByAddr(c context.Context, req *mgravitytypes
 }
 
 func (k Keeper) LastEventNonceByAddr(c context.Context, req *mgravitytypes.QueryLastEventNonceByAddrRequest) (*mgravitytypes.QueryLastEventNonceByAddrResponse, error) {
-	subKeeper, err := k.SubKeeper(req.ChainIdentifier)
+	subKeeper, err := k.SubKeeper(sdk.UnwrapSDKContext(c), req.ChainIdentifier)
 	if err != nil {
 		return nil, err
 	}
@@ -141,7 +141,7 @@ func (k Keeper) LastEventNonceByAddr(c context.Context, req *mgravitytypes.Query
 }
 
 func (k Keeper) BatchFees(c context.Context, req *mgravitytypes.QueryBatchFeeRequest) (*mgravitytypes.QueryBatchFeeResponse, error) {
-	subKeeper, err := k.SubKeeper(req.ChainIdentifier)
+	subKeeper, err := k.SubKeeper(sdk.UnwrapSDKContext(c), req.ChainIdentifier)
 	if err != nil {
 		return nil, err
 	}
@@ -153,7 +153,7 @@ func (k Keeper) BatchFees(c context.Context, req *mgravitytypes.QueryBatchFeeReq
 }
 
 func (k Keeper) OutgoingTxBatches(c context.Context, req *mgravitytypes.QueryOutgoingTxBatchesRequest) (*mgravitytypes.QueryOutgoingTxBatchesResponse, error) {
-	subKeeper, err := k.SubKeeper(req.ChainIdentifier)
+	subKeeper, err := k.SubKeeper(sdk.UnwrapSDKContext(c), req.ChainIdentifier)
 	if err != nil {
 		return nil, err
 	}
@@ -165,7 +165,7 @@ func (k Keeper) OutgoingTxBatches(c context.Context, req *mgravitytypes.QueryOut
 }
 
 func (k Keeper) OutgoingLogicCalls(c context.Context, req *mgravitytypes.QueryOutgoingLogicCallsRequest) (*mgravitytypes.QueryOutgoingLogicCallsResponse, error) {
-	subKeeper, err := k.SubKeeper(req.ChainIdentifier)
+	subKeeper, err := k.SubKeeper(sdk.UnwrapSDKContext(c), req.ChainIdentifier)
 	if err != nil {
 		return nil, err
 	}
@@ -177,7 +177,7 @@ func (k Keeper) OutgoingLogicCalls(c context.Context, req *mgravitytypes.QueryOu
 }
 
 func (k Keeper) BatchRequestByNonce(c context.Context, req *mgravitytypes.QueryBatchRequestByNonceRequest) (*mgravitytypes.QueryBatchRequestByNonceResponse, error) {
-	subKeeper, err := k.SubKeeper(req.ChainIdentifier)
+	subKeeper, err := k.SubKeeper(sdk.UnwrapSDKContext(c), req.ChainIdentifier)
 	if err != nil {
 		return nil, err
 	}
@@ -192,7 +192,7 @@ func (k Keeper) BatchRequestByNonce(c context.Context, req *mgravitytypes.QueryB
 }
 
 func (k Keeper) BatchConfirms(c context.Context, req *mgravitytypes.QueryBatchConfirmsRequest) (*mgravitytypes.QueryBatchConfirmsResponse, error) {
-	subKeeper, err := k.SubKeeper(req.ChainIdentifier)
+	subKeeper, err := k.SubKeeper(sdk.UnwrapSDKContext(c), req.ChainIdentifier)
 	if err != nil {
 		return nil, err
 	}
@@ -207,7 +207,7 @@ func (k Keeper) BatchConfirms(c context.Context, req *mgravitytypes.QueryBatchCo
 }
 
 func (k Keeper) LogicConfirms(c context.Context, req *mgravitytypes.QueryLogicConfirmsRequest) (*mgravitytypes.QueryLogicConfirmsResponse, error) {
-	subKeeper, err := k.SubKeeper(req.ChainIdentifier)
+	subKeeper, err := k.SubKeeper(sdk.UnwrapSDKContext(c), req.ChainIdentifier)
 	if err != nil {
 		return nil, err
 	}
@@ -222,7 +222,7 @@ func (k Keeper) LogicConfirms(c context.Context, req *mgravitytypes.QueryLogicCo
 }
 
 func (k Keeper) ERC20ToDenom(c context.Context, req *mgravitytypes.QueryERC20ToDenomRequest) (*mgravitytypes.QueryERC20ToDenomResponse, error) {
-	subKeeper, err := k.SubKeeper(req.ChainIdentifier)
+	subKeeper, err := k.SubKeeper(sdk.UnwrapSDKContext(c), req.ChainIdentifier)
 	if err != nil {
 		return nil, err
 	}
@@ -237,7 +237,7 @@ func (k Keeper) ERC20ToDenom(c context.Context, req *mgravitytypes.QueryERC20ToD
 }
 
 func (k Keeper) DenomToERC20(c context.Context, req *mgravitytypes.QueryDenomToERC20Request) (*mgravitytypes.QueryDenomToERC20Response, error) {
-	subKeeper, err := k.SubKeeper(req.ChainIdentifier)
+	subKeeper, err := k.SubKeeper(sdk.UnwrapSDKContext(c), req.ChainIdentifier)
 	if err != nil {
 		return nil, err
 	}
@@ -252,7 +252,7 @@ func (k Keeper) DenomToERC20(c context.Context, req *mgravitytypes.QueryDenomToE
 }
 
 func (k Keeper) GetAttestations(c context.Context, req *mgravitytypes.QueryAttestationsRequest) (*mgravitytypes.QueryAttestationsResponse, error) {
-	subKeeper, err := k.SubKeeper(req.ChainIdentifier)
+	subKeeper, err := k.SubKeeper(sdk.UnwrapSDKContext(c), req.ChainIdentifier)
 	if err != nil {
 		return nil, err
 	}
@@ -270,31 +270,31 @@ func (k Keeper) GetAttestations(c context.Context, req *mgravitytypes.QueryAttes
 }
 
 func (k Keeper) GetDelegateKeyByValidator(c context.Context, req *types.QueryDelegateKeysByValidatorAddress) (*types.QueryDelegateKeysByValidatorAddressResponse, error) {
-	subKeepers := k.SubKeepers()
+	subKeepers := k.SubKeepers(sdk.UnwrapSDKContext(c))
 	if len(subKeepers) == 0 {
 		return nil, sdkerrors.Wrap(mgravitytypes.ErrChainNotFound, "")
 	}
-	return subKeepers[0].Keeper.GetDelegateKeyByValidator(c, req)
+	return subKeepers[0].GetDelegateKeyByValidator(c, req)
 }
 
 func (k Keeper) GetDelegateKeyByEth(c context.Context, req *types.QueryDelegateKeysByEthAddress) (*types.QueryDelegateKeysByEthAddressResponse, error) {
-	subKeepers := k.SubKeepers()
+	subKeepers := k.SubKeepers(sdk.UnwrapSDKContext(c))
 	if len(subKeepers) == 0 {
 		return nil, sdkerrors.Wrap(mgravitytypes.ErrChainNotFound, "")
 	}
-	return subKeepers[0].Keeper.GetDelegateKeyByEth(c, req)
+	return subKeepers[0].GetDelegateKeyByEth(c, req)
 }
 
 func (k Keeper) GetDelegateKeyByOrchestrator(c context.Context, req *types.QueryDelegateKeysByOrchestratorAddress) (*types.QueryDelegateKeysByOrchestratorAddressResponse, error) {
-	subKeepers := k.SubKeepers()
+	subKeepers := k.SubKeepers(sdk.UnwrapSDKContext(c))
 	if len(subKeepers) == 0 {
 		return nil, sdkerrors.Wrap(mgravitytypes.ErrChainNotFound, "")
 	}
-	return subKeepers[0].Keeper.GetDelegateKeyByOrchestrator(c, req)
+	return subKeepers[0].GetDelegateKeyByOrchestrator(c, req)
 }
 
 func (k Keeper) GetPendingSendToEth(c context.Context, req *mgravitytypes.QueryPendingSendToEth) (*mgravitytypes.QueryPendingSendToEthResponse, error) {
-	subKeeper, err := k.SubKeeper(req.ChainIdentifier)
+	subKeeper, err := k.SubKeeper(sdk.UnwrapSDKContext(c), req.ChainIdentifier)
 	if err != nil {
 		return nil, err
 	}
@@ -309,7 +309,7 @@ func (k Keeper) GetPendingSendToEth(c context.Context, req *mgravitytypes.QueryP
 }
 
 func (k Keeper) GetPendingIbcAutoForwards(c context.Context, req *mgravitytypes.QueryPendingIbcAutoForwards) (*mgravitytypes.QueryPendingIbcAutoForwardsResponse, error) {
-	subKeeper, err := k.SubKeeper(req.ChainIdentifier)
+	subKeeper, err := k.SubKeeper(sdk.UnwrapSDKContext(c), req.ChainIdentifier)
 	if err != nil {
 		return nil, err
 	}

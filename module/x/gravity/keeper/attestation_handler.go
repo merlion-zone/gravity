@@ -8,9 +8,11 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 
 	"github.com/Gravity-Bridge/Gravity-Bridge/module/x/gravity/types"
+	mgravitytypes "github.com/Gravity-Bridge/Gravity-Bridge/module/x/multigravity/types"
 )
 
 // Check that distKeeper implements the expected type
@@ -219,9 +221,15 @@ func (a AttestationHandler) handleErc20Deployed(ctx sdk.Context, claim types.Msg
 	}
 
 	// Check if denom metadata has been accepted by governance
-	metadata, ok := a.keeper.bankKeeper.GetDenomMetaData(ctx, claim.CosmosDenom)
-	if !ok || metadata.Base == "" {
-		return sdkerrors.Wrap(types.ErrUnknown, fmt.Sprintf("denom not found %s", claim.CosmosDenom))
+	var metadata banktypes.Metadata
+	if claim.CosmosDenom == mgravitytypes.GasCoinMetadata.Base {
+		metadata = mgravitytypes.GasCoinMetadata
+	} else {
+		var ok bool
+		metadata, ok = a.keeper.bankKeeper.GetDenomMetaData(ctx, claim.CosmosDenom)
+		if !ok || metadata.Base == "" {
+			return sdkerrors.Wrap(types.ErrUnknown, fmt.Sprintf("denom not found %s", claim.CosmosDenom))
+		}
 	}
 
 	// Check if attributes of ERC20 match Cosmos denom

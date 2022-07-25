@@ -18,6 +18,7 @@ import (
 	slashingkeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
 	ibctransferkeeper "github.com/cosmos/ibc-go/v3/modules/apps/transfer/keeper"
 	bech32ibckeeper "github.com/osmosis-labs/bech32-ibc/x/bech32ibc/keeper"
+	"github.com/tendermint/tendermint/libs/log"
 
 	"github.com/Gravity-Bridge/Gravity-Bridge/module/x/gravity/keeper"
 	"github.com/Gravity-Bridge/Gravity-Bridge/module/x/gravity/types"
@@ -38,13 +39,7 @@ type Keeper struct {
 	bech32IbcKeeper   *bech32ibckeeper.Keeper
 	paramsKeeper      *paramskeeper.Keeper
 
-	AttestationHandler interface {
-		Handle(sdk.Context, types.Attestation, types.EthereumClaim) error
-	}
-
-	// Mapping chainIdentifier -> keeper.Keeper
-	keepers map[string]keeper.Keeper
-	app     *baseapp.BaseApp
+	app *baseapp.BaseApp
 }
 
 func NewKeeper(
@@ -75,56 +70,41 @@ func NewKeeper(
 		bech32IbcKeeper:   bech32IbcKeeper,
 		paramsKeeper:      paramsKeeper,
 
-		AttestationHandler: nil,
-
-		keepers: map[string]keeper.Keeper{},
-		app:     app,
+		app: app,
 	}
-	attestationHandler := AttestationHandler{}
-	k.AttestationHandler = attestationHandler
 
 	return k
 }
 
-func (k Keeper) LoadSubKeepers(ctx sdk.Context) {
-	for _, chain := range k.AllChains(ctx) {
-		k.loadSubKeeper(ctx, chain)
-	}
-}
-
 func (k Keeper) UpdateSubKeeper(ctx sdk.Context, chainIdentifier string, params types.Params) error {
+	subKeeper := k.loadSubKeeper(chainIdentifier)
+
 	// if new chain, register it
-	subKeeper, ok := k.keepers[chainIdentifier]
-	if !ok {
+	if !k.HasChain(ctx, chainIdentifier) {
 		err := k.assertNoPrefix(ctx, chainIdentifier)
 		if err != nil {
 			return err
 		}
 
 		k.SetChain(ctx, chainIdentifier)
-		subKeeper = k.loadSubKeeper(ctx, chainIdentifier)
+
+		// init genesis states for the new gravity keeper
+		keeper.InitGenesis(ctx, subKeeper, *types.DefaultGenesisState())
 	}
 
 	subKeeper.SetParams(ctx, params)
 	return nil
 }
 
-func (k Keeper) loadSubKeeper(ctx sdk.Context, chainIdentifier string) keeper.Keeper {
-	key := fmt.Sprintf("%s-%s", k.storeKey.Name(), chainIdentifier)
-
-	storeKey := sdk.NewKVStoreKey(key)
-	k.app.MountStores(storeKey)
-
-	k.paramsKeeper.Subspace(key)
-	paramSpace, _ := k.paramsKeeper.GetSubspace(key)
-
-	// set KeyTable if it has not already been set
-	if !paramSpace.HasKeyTable() {
-		paramSpace = paramSpace.WithKeyTable(types.ParamKeyTable())
+func (k Keeper) loadSubKeeper(chainIdentifier string) keeper.Keeper {
+	subspaceKey := fmt.Sprintf("%s-%s", k.storeKey.Name(), chainIdentifier)
+	paramSpace, ok := k.paramsKeeper.GetSubspace(subspaceKey)
+	if !ok {
+		paramSpace = k.paramsKeeper.Subspace(subspaceKey)
 	}
 
 	subKeeper := keeper.NewKeeper(
-		storeKey,
+		k.storeKey,
 		paramSpace,
 		k.cdc,
 		k.bankKeeper,
@@ -136,7 +116,7 @@ func (k Keeper) loadSubKeeper(ctx sdk.Context, chainIdentifier string) keeper.Ke
 		k.bech32IbcKeeper,
 	)
 	subKeeper.ChainIdentifier = chainIdentifier
-	k.keepers[chainIdentifier] = subKeeper
+
 	return subKeeper
 }
 
@@ -154,45 +134,43 @@ func (k Keeper) assertNoPrefix(ctx sdk.Context, chainIdentifier string) error {
 	return nil
 }
 
-type SubKeeper struct {
-	ChainIdentifier string
-	Keeper          keeper.Keeper
-}
-
-func (k Keeper) SubKeepers() []SubKeeper {
-	subKeepers := make([]SubKeeper, 0, len(k.keepers))
-	for c, k := range k.keepers {
-		subKeepers = append(subKeepers, SubKeeper{
-			ChainIdentifier: c,
-			Keeper:          k,
-		})
+func (k Keeper) SubKeepers(ctx sdk.Context) []keeper.Keeper {
+	chains := k.AllChains(ctx)
+	subKeepers := make([]keeper.Keeper, 0, len(chains))
+	for _, chain := range chains {
+		subKeepers = append(subKeepers, k.loadSubKeeper(chain))
 	}
+
 	sort.Slice(subKeepers, func(i, j int) bool {
 		return subKeepers[i].ChainIdentifier < subKeepers[j].ChainIdentifier
 	})
 	return subKeepers
 }
 
-func (k Keeper) SubKeeper(chainIdentifier string) (keeper.Keeper, error) {
-	subKeeper, ok := k.keepers[chainIdentifier]
-	if !ok {
+func (k Keeper) SubKeeper(ctx sdk.Context, chainIdentifier string) (keeper.Keeper, error) {
+	if !k.HasChain(ctx, chainIdentifier) {
 		return keeper.Keeper{}, sdkerrors.Wrap(mgravitytypes.ErrChainNotFound, "")
 	}
-	return subKeeper, nil
+	return k.loadSubKeeper(chainIdentifier), nil
 }
 
-func (k Keeper) SubKeeperServers() []types.MsgServer {
-	servers := make([]types.MsgServer, 0, len(k.keepers))
-	for _, subKeeper := range k.SubKeepers() {
-		servers = append(servers, keeper.NewMsgServerImpl(subKeeper.Keeper))
+func (k Keeper) SubKeeperServers(ctx sdk.Context) []types.MsgServer {
+	subKeepers := k.SubKeepers(ctx)
+	servers := make([]types.MsgServer, 0, len(subKeepers))
+	for _, subKeeper := range subKeepers {
+		servers = append(servers, keeper.NewMsgServerImpl(subKeeper))
 	}
 	return servers
 }
 
-func (k Keeper) SubKeeperServer(chainIdentifier string) (types.MsgServer, error) {
-	subKeeper, err := k.SubKeeper(chainIdentifier)
+func (k Keeper) SubKeeperServer(ctx sdk.Context, chainIdentifier string) (types.MsgServer, error) {
+	subKeeper, err := k.SubKeeper(ctx, chainIdentifier)
 	if err != nil {
 		return nil, err
 	}
 	return keeper.NewMsgServerImpl(subKeeper), nil
+}
+
+func (k Keeper) logger(ctx sdk.Context) log.Logger {
+	return ctx.Logger().With("module", fmt.Sprintf("x/%s", mgravitytypes.ModuleName))
 }

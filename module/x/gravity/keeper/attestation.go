@@ -162,14 +162,14 @@ func (k Keeper) emitObservedEvent(ctx sdk.Context, att *types.Attestation, claim
 
 // SetAttestation sets the attestation in the store
 func (k Keeper) SetAttestation(ctx sdk.Context, eventNonce uint64, claimHash []byte, att *types.Attestation) {
-	store := ctx.KVStore(k.storeKey)
+	store := k.SubStore(ctx)
 	aKey := types.GetAttestationKey(eventNonce, claimHash)
 	store.Set(aKey, k.cdc.MustMarshal(att))
 }
 
 // GetAttestation return an attestation given a nonce
 func (k Keeper) GetAttestation(ctx sdk.Context, eventNonce uint64, claimHash []byte) *types.Attestation {
-	store := ctx.KVStore(k.storeKey)
+	store := k.SubStore(ctx)
 	aKey := types.GetAttestationKey(eventNonce, claimHash)
 	bz := store.Get(aKey)
 	if len(bz) == 0 {
@@ -190,7 +190,7 @@ func (k Keeper) DeleteAttestation(ctx sdk.Context, att types.Attestation) {
 	if err != nil {
 		panic(sdkerrors.Wrap(err, "unable to compute claim hash"))
 	}
-	store := ctx.KVStore(k.storeKey)
+	store := k.SubStore(ctx)
 
 	store.Delete(types.GetAttestationKey(claim.GetEventNonce(), hash))
 }
@@ -225,7 +225,7 @@ func (k Keeper) GetAttestationMapping(ctx sdk.Context) (attestationMapping map[u
 
 // IterateAttestations iterates through all attestations
 func (k Keeper) IterateAttestations(ctx sdk.Context, reverse bool, cb func([]byte, types.Attestation) bool) {
-	store := ctx.KVStore(k.storeKey)
+	store := k.SubStore(ctx)
 	prefix := types.OracleAttestationKey
 
 	var iter storetypes.Iterator
@@ -284,7 +284,7 @@ func (k Keeper) GetMostRecentAttestations(ctx sdk.Context, limit uint64) []types
 
 // GetLastObservedEventNonce returns the latest observed event nonce
 func (k Keeper) GetLastObservedEventNonce(ctx sdk.Context) uint64 {
-	store := ctx.KVStore(k.storeKey)
+	store := k.SubStore(ctx)
 	bytes := store.Get(types.LastObservedEventNonceKey)
 
 	if len(bytes) == 0 {
@@ -296,7 +296,7 @@ func (k Keeper) GetLastObservedEventNonce(ctx sdk.Context) uint64 {
 // GetLastObservedEthereumBlockHeight height gets the block height to of the last observed attestation from
 // the store
 func (k Keeper) GetLastObservedEthereumBlockHeight(ctx sdk.Context) types.LastObservedEthereumBlockHeight {
-	store := ctx.KVStore(k.storeKey)
+	store := k.SubStore(ctx)
 	bytes := store.Get([]byte(types.LastObservedEthereumBlockHeightKey))
 
 	if len(bytes) == 0 {
@@ -315,7 +315,7 @@ func (k Keeper) GetLastObservedEthereumBlockHeight(ctx sdk.Context) types.LastOb
 
 // SetLastObservedEthereumBlockHeight sets the block height in the store.
 func (k Keeper) SetLastObservedEthereumBlockHeight(ctx sdk.Context, ethereumHeight uint64) {
-	store := ctx.KVStore(k.storeKey)
+	store := k.SubStore(ctx)
 	height := types.LastObservedEthereumBlockHeight{
 		EthereumBlockHeight: ethereumHeight,
 		CosmosBlockHeight:   uint64(ctx.BlockHeight()),
@@ -328,7 +328,7 @@ func (k Keeper) SetLastObservedEthereumBlockHeight(ctx sdk.Context, ethereumHeig
 // that AT ONE POINT was the one in the Gravity bridge on Ethereum. If you assume that it's up
 // to date you may break the bridge
 func (k Keeper) GetLastObservedValset(ctx sdk.Context) *types.Valset {
-	store := ctx.KVStore(k.storeKey)
+	store := k.SubStore(ctx)
 	bytes := store.Get(types.LastObservedValsetKey)
 
 	if len(bytes) == 0 {
@@ -347,13 +347,13 @@ func (k Keeper) GetLastObservedValset(ctx sdk.Context) *types.Valset {
 
 // SetLastObservedValset updates the last observed validator set in the store
 func (k Keeper) SetLastObservedValset(ctx sdk.Context, valset types.Valset) {
-	store := ctx.KVStore(k.storeKey)
+	store := k.SubStore(ctx)
 	store.Set(types.LastObservedValsetKey, k.cdc.MustMarshal(&valset))
 }
 
 // setLastObservedEventNonce sets the latest observed event nonce
 func (k Keeper) setLastObservedEventNonce(ctx sdk.Context, nonce uint64) {
-	store := ctx.KVStore(k.storeKey)
+	store := k.SubStore(ctx)
 	store.Set(types.LastObservedEventNonceKey, types.UInt64Bytes(nonce))
 }
 
@@ -362,7 +362,7 @@ func (k Keeper) GetLastEventNonceByValidator(ctx sdk.Context, validator sdk.ValA
 	if err := sdk.VerifyAddressFormat(validator); err != nil {
 		panic(sdkerrors.Wrap(err, "invalid validator address"))
 	}
-	store := ctx.KVStore(k.storeKey)
+	store := k.SubStore(ctx)
 	bytes := store.Get(types.GetLastEventNonceByValidatorKey(validator))
 
 	if len(bytes) == 0 {
@@ -385,6 +385,6 @@ func (k Keeper) SetLastEventNonceByValidator(ctx sdk.Context, validator sdk.ValA
 	if err := sdk.VerifyAddressFormat(validator); err != nil {
 		panic(sdkerrors.Wrap(err, "invalid validator address"))
 	}
-	store := ctx.KVStore(k.storeKey)
+	store := k.SubStore(ctx)
 	store.Set(types.GetLastEventNonceByValidatorKey(validator), types.UInt64Bytes(nonce))
 }

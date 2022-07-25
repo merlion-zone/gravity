@@ -87,13 +87,13 @@ func (k Keeper) checkBadSignatureEvidenceInternal(ctx sdk.Context, subject types
 // SetPastEthSignatureCheckpoint puts the checkpoint of a valset, batch, or logic call into a set
 // in order to prove later that it existed at one point.
 func (k Keeper) SetPastEthSignatureCheckpoint(ctx sdk.Context, checkpoint []byte) {
-	store := ctx.KVStore(k.storeKey)
+	store := k.SubStore(ctx)
 	store.Set(types.GetPastEthSignatureCheckpointKey(checkpoint), []byte{0x1})
 }
 
 // GetPastEthSignatureCheckpoint tells you whether a given checkpoint has ever existed
 func (k Keeper) GetPastEthSignatureCheckpoint(ctx sdk.Context, checkpoint []byte) (found bool) {
-	store := ctx.KVStore(k.storeKey)
+	store := k.SubStore(ctx)
 	if bytes.Equal(store.Get(types.GetPastEthSignatureCheckpointKey(checkpoint)), []byte{0x1}) {
 		return true
 	} else {

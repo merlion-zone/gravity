@@ -7,13 +7,13 @@ import (
 	"github.com/Gravity-Bridge/Gravity-Bridge/module/x/gravity/types"
 )
 
-/////////////////////////////
+// ///////////////////////////
 //      BATCH CONFIRMS     //
-/////////////////////////////
+// ///////////////////////////
 
 // GetBatchConfirm returns a batch confirmation given its nonce, the token contract, and a validator address
 func (k Keeper) GetBatchConfirm(ctx sdk.Context, nonce uint64, tokenContract types.EthAddress, validator sdk.AccAddress) *types.MsgConfirmBatch {
-	store := ctx.KVStore(k.storeKey)
+	store := k.SubStore(ctx)
 	if err := sdk.VerifyAddressFormat(validator); err != nil {
 		ctx.Logger().Error("invalid validator address")
 		return nil
@@ -35,7 +35,7 @@ func (k Keeper) GetBatchConfirm(ctx sdk.Context, nonce uint64, tokenContract typ
 
 // SetBatchConfirm sets a batch confirmation by a validator
 func (k Keeper) SetBatchConfirm(ctx sdk.Context, batch *types.MsgConfirmBatch) []byte {
-	store := ctx.KVStore(k.storeKey)
+	store := k.SubStore(ctx)
 	acc, err := sdk.AccAddressFromBech32(batch.Orchestrator)
 	if err != nil {
 		panic(sdkerrors.Wrap(err, "invalid Orchestrator address"))
@@ -51,7 +51,7 @@ func (k Keeper) SetBatchConfirm(ctx sdk.Context, batch *types.MsgConfirmBatch) [
 
 // DeleteBatchConfirms deletes confirmations for an outgoing transaction batch
 func (k Keeper) DeleteBatchConfirms(ctx sdk.Context, batch types.InternalOutgoingTxBatch) {
-	store := ctx.KVStore(k.storeKey)
+	store := k.SubStore(ctx)
 	for _, confirm := range k.GetBatchConfirmByNonceAndTokenContract(ctx, batch.BatchNonce, batch.TokenContract) {
 		orchestrator, err := sdk.AccAddressFromBech32(confirm.Orchestrator)
 		if err == nil {
@@ -67,7 +67,7 @@ func (k Keeper) DeleteBatchConfirms(ctx sdk.Context, batch types.InternalOutgoin
 // MARK finish-batches: this is where the key is iterated in the old (presumed working) code
 // TODO: specify which nonce this is
 func (k Keeper) IterateBatchConfirmByNonceAndTokenContract(ctx sdk.Context, nonce uint64, tokenContract types.EthAddress, cb func([]byte, types.MsgConfirmBatch) bool) {
-	store := ctx.KVStore(k.storeKey)
+	store := k.SubStore(ctx)
 	prefix := types.GetBatchConfirmNonceContractPrefix(tokenContract, nonce)
 	iter := store.Iterator(prefixRange([]byte(prefix)))
 

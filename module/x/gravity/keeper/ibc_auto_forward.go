@@ -10,14 +10,16 @@ package keeper
 
 import (
 	"fmt"
-	"github.com/Gravity-Bridge/Gravity-Bridge/module/x/gravity/types"
+	"time"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/bech32"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	ibctransfertypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
 	ibcclienttypes "github.com/cosmos/ibc-go/v3/modules/core/02-client/types"
 	bech32ibctypes "github.com/osmosis-labs/bech32-ibc/x/bech32ibc/types"
-	"time"
+
+	"github.com/Gravity-Bridge/Gravity-Bridge/module/x/gravity/types"
 )
 
 // ValidatePendingIbcAutoForward performs basic validation, asserts the nonce is not ahead of what gravity is aware of,
@@ -59,7 +61,7 @@ func (k Keeper) ValidatePendingIbcAutoForward(ctx sdk.Context, forward types.Pen
 
 // GetNextPendingIbcAutoForward returns the first pending IBC Auto-Forward in the queue
 func (k Keeper) GetNextPendingIbcAutoForward(ctx sdk.Context) *types.PendingIbcAutoForward {
-	store := ctx.KVStore(k.storeKey)
+	store := k.SubStore(ctx)
 	prefix := types.PendingIbcAutoForwards
 	iter := store.Iterator(prefixRange(prefix))
 	defer iter.Close()
@@ -79,7 +81,7 @@ func (k Keeper) GetNextPendingIbcAutoForward(ctx sdk.Context) *types.PendingIbcA
 
 // PendingIbcAutoForwards returns an ordered slice of the queued IBC Auto-Forward sends to IBC-enabled chains
 func (k Keeper) PendingIbcAutoForwards(ctx sdk.Context, limit uint64) []*types.PendingIbcAutoForward {
-	store := ctx.KVStore(k.storeKey)
+	store := k.SubStore(ctx)
 	prefix := types.PendingIbcAutoForwards
 	iter := store.Iterator(prefixRange(prefix))
 	defer iter.Close()
@@ -103,7 +105,7 @@ func (k Keeper) addPendingIbcAutoForward(ctx sdk.Context, forward types.PendingI
 	if err := k.ValidatePendingIbcAutoForward(ctx, forward); err != nil {
 		return err
 	}
-	store := ctx.KVStore(k.storeKey)
+	store := k.SubStore(ctx)
 	key := types.GetPendingIbcAutoForwardKey(forward.EventNonce)
 
 	if store.Has(key) {
@@ -131,7 +133,7 @@ func (k Keeper) addPendingIbcAutoForward(ctx sdk.Context, forward types.PendingI
 // deletePendingIbcAutoForward removes a single pending IBC Auto-Forward send to an IBC-enabled chain from the store
 // WARNING: this should only be called while clearing the queue in ClearNextPendingIbcAutoForward
 func (k Keeper) deletePendingIbcAutoForward(ctx sdk.Context, eventNonce uint64) error {
-	store := ctx.KVStore(k.storeKey)
+	store := k.SubStore(ctx)
 	key := types.GetPendingIbcAutoForwardKey(eventNonce)
 	if !store.Has(key) {
 		return sdkerrors.Wrapf(types.ErrInvalid, "No PendingIbcAutoForward with nonce %v in the store", eventNonce)

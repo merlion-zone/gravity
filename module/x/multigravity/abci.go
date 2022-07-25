@@ -9,8 +9,7 @@ import (
 
 // EndBlocker is called at the end of every block
 func EndBlocker(ctx sdk.Context, k mgravitykeeper.Keeper) {
-	for _, sk := range k.SubKeepers() {
-		keeper := sk.Keeper
+	for _, keeper := range k.SubKeepers(ctx) {
 		gravity.Slashing(ctx, keeper)
 		gravity.AttestationTally(ctx, keeper)
 		gravity.CleanupTimedOutBatches(ctx, keeper)

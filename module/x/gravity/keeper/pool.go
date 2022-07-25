@@ -153,7 +153,7 @@ func (k Keeper) RemoveFromOutgoingPoolAndRefund(ctx sdk.Context, txId uint64, se
 // addUnbatchedTx creates a new transaction in the pool
 // WARNING: Do not make this function public
 func (k Keeper) addUnbatchedTX(ctx sdk.Context, val *types.InternalOutgoingTransferTx) error {
-	store := ctx.KVStore(k.storeKey)
+	store := k.SubStore(ctx)
 	idxKey := types.GetOutgoingTxPoolKey(*val.Erc20Fee, val.Id)
 	if store.Has(idxKey) {
 		return sdkerrors.Wrap(types.ErrDuplicate, "transaction already in pool")
@@ -173,7 +173,7 @@ func (k Keeper) addUnbatchedTX(ctx sdk.Context, val *types.InternalOutgoingTrans
 // removeUnbatchedTXIndex removes the tx from the pool
 // WARNING: Do not make this function public
 func (k Keeper) removeUnbatchedTX(ctx sdk.Context, fee types.InternalERC20Token, txID uint64) error {
-	store := ctx.KVStore(k.storeKey)
+	store := k.SubStore(ctx)
 	idxKey := types.GetOutgoingTxPoolKey(fee, txID)
 	if !store.Has(idxKey) {
 		return sdkerrors.Wrap(types.ErrUnknown, "pool transaction")
@@ -184,7 +184,7 @@ func (k Keeper) removeUnbatchedTX(ctx sdk.Context, fee types.InternalERC20Token,
 
 // GetUnbatchedTxByFeeAndId grabs a tx from the pool given its fee and txID
 func (k Keeper) GetUnbatchedTxByFeeAndId(ctx sdk.Context, fee types.InternalERC20Token, txID uint64) (*types.InternalOutgoingTransferTx, error) {
-	store := ctx.KVStore(k.storeKey)
+	store := k.SubStore(ctx)
 	bz := store.Get(types.GetOutgoingTxPoolKey(fee, txID))
 	if bz == nil {
 		return nil, sdkerrors.Wrap(types.ErrUnknown, "pool transaction")
@@ -248,7 +248,7 @@ func (k Keeper) IterateUnbatchedTransactionsByContract(ctx sdk.Context, contract
 
 // IterateUnbatchedTransactions iterates through all unbatched transactions whose keys begin with prefixKey in DESC order
 func (k Keeper) IterateUnbatchedTransactions(ctx sdk.Context, prefixKey []byte, cb func(key []byte, tx *types.InternalOutgoingTransferTx) bool) {
-	prefixStore := ctx.KVStore(k.storeKey)
+	prefixStore := k.SubStore(ctx)
 	iter := prefixStore.ReverseIterator(prefixRange(prefixKey))
 	defer iter.Close()
 	for ; iter.Valid(); iter.Next() {
@@ -350,7 +350,7 @@ func (k Keeper) autoIncrementID(ctx sdk.Context, idKey []byte) uint64 {
 
 // gets a generic uint64 counter from the store, initializing to 1 if no value exists
 func (k Keeper) getID(ctx sdk.Context, idKey []byte) uint64 {
-	store := ctx.KVStore(k.storeKey)
+	store := k.SubStore(ctx)
 	bz := store.Get(idKey)
 	id := binary.BigEndian.Uint64(bz)
 	return id
@@ -358,7 +358,7 @@ func (k Keeper) getID(ctx sdk.Context, idKey []byte) uint64 {
 
 // sets a generic uint64 counter in the store
 func (k Keeper) setID(ctx sdk.Context, id uint64, idKey []byte) {
-	store := ctx.KVStore(k.storeKey)
+	store := k.SubStore(ctx)
 	bz := sdk.Uint64ToBigEndian(id)
 	store.Set(idKey, bz)
 }

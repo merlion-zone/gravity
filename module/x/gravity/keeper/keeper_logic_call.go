@@ -10,13 +10,13 @@ import (
 	"github.com/Gravity-Bridge/Gravity-Bridge/module/x/gravity/types"
 )
 
-/////////////////////////////
+// ///////////////////////////
 //       LOGICCALLS        //
-/////////////////////////////
+// ///////////////////////////
 
 // GetOutgoingLogicCall gets an outgoing logic call
 func (k Keeper) GetOutgoingLogicCall(ctx sdk.Context, invalidationID []byte, invalidationNonce uint64) *types.OutgoingLogicCall {
-	store := ctx.KVStore(k.storeKey)
+	store := k.SubStore(ctx)
 	call := types.OutgoingLogicCall{
 		Transfers:            []types.ERC20Token{},
 		Fees:                 []types.ERC20Token{},
@@ -34,7 +34,7 @@ func (k Keeper) GetOutgoingLogicCall(ctx sdk.Context, invalidationID []byte, inv
 // SetOutogingLogicCall sets an outgoing logic call, panics if one already exists at this
 // index, since we collect signatures over logic calls no mutation can be valid
 func (k Keeper) SetOutgoingLogicCall(ctx sdk.Context, call types.OutgoingLogicCall) {
-	store := ctx.KVStore(k.storeKey)
+	store := k.SubStore(ctx)
 
 	// Store checkpoint to prove that this logic call actually happened
 	checkpoint := call.GetCheckpoint(k.GetGravityID(ctx))
@@ -49,12 +49,12 @@ func (k Keeper) SetOutgoingLogicCall(ctx sdk.Context, call types.OutgoingLogicCa
 
 // DeleteOutgoingLogicCall deletes outgoing logic calls
 func (k Keeper) DeleteOutgoingLogicCall(ctx sdk.Context, invalidationID []byte, invalidationNonce uint64) {
-	ctx.KVStore(k.storeKey).Delete(types.GetOutgoingLogicCallKey(invalidationID, invalidationNonce))
+	k.SubStore(ctx).Delete(types.GetOutgoingLogicCallKey(invalidationID, invalidationNonce))
 }
 
 // IterateOutgoingLogicCalls iterates over outgoing logic calls
 func (k Keeper) IterateOutgoingLogicCalls(ctx sdk.Context, cb func([]byte, types.OutgoingLogicCall) bool) {
-	prefixStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyOutgoingLogicCall)
+	prefixStore := prefix.NewStore(k.SubStore(ctx), types.KeyOutgoingLogicCall)
 	iter := prefixStore.Iterator(nil, nil)
 	defer iter.Close()
 	for ; iter.Valid(); iter.Next() {
@@ -96,9 +96,9 @@ func (k Keeper) CancelOutgoingLogicCall(ctx sdk.Context, invalidationId []byte, 
 	return nil
 }
 
-/////////////////////////////
+// ///////////////////////////
 //       LOGICCONFIRMS     //
-/////////////////////////////
+// ///////////////////////////
 
 // SetLogicCallConfirm sets a logic confirm in the store
 func (k Keeper) SetLogicCallConfirm(ctx sdk.Context, msg *types.MsgConfirmLogicCall) {
@@ -112,7 +112,7 @@ func (k Keeper) SetLogicCallConfirm(ctx sdk.Context, msg *types.MsgConfirmLogicC
 		panic(err)
 	}
 
-	ctx.KVStore(k.storeKey).
+	k.SubStore(ctx).
 		Set(types.GetLogicConfirmKey(bytes, msg.InvalidationNonce, acc), k.cdc.MustMarshal(msg))
 }
 
@@ -122,7 +122,7 @@ func (k Keeper) GetLogicCallConfirm(ctx sdk.Context, invalidationId []byte, inva
 		ctx.Logger().Error("invalid val address")
 		return nil
 	}
-	store := ctx.KVStore(k.storeKey)
+	store := k.SubStore(ctx)
 	data := store.Get(types.GetLogicConfirmKey(invalidationId, invalidationNonce, val))
 	if data == nil {
 		return nil
@@ -144,7 +144,7 @@ func (k Keeper) DeleteLogicCallConfirm(
 	invalidationID []byte,
 	invalidationNonce uint64,
 	val sdk.AccAddress) {
-	ctx.KVStore(k.storeKey).Delete(types.GetLogicConfirmKey(invalidationID, invalidationNonce, val))
+	k.SubStore(ctx).Delete(types.GetLogicConfirmKey(invalidationID, invalidationNonce, val))
 }
 
 // IterateLogicConfirmByInvalidationIDAndNonce iterates over all logic confirms stored by nonce
@@ -153,7 +153,7 @@ func (k Keeper) IterateLogicConfirmByInvalidationIDAndNonce(
 	invalidationID []byte,
 	invalidationNonce uint64,
 	cb func([]byte, *types.MsgConfirmLogicCall) bool) {
-	store := ctx.KVStore(k.storeKey)
+	store := k.SubStore(ctx)
 	prefix := types.GetLogicConfirmNonceInvalidationIdPrefix(invalidationID, invalidationNonce)
 	iter := store.Iterator(prefixRange([]byte(prefix)))
 

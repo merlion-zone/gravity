@@ -3,6 +3,7 @@ package keeper
 import (
 	"context"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/Gravity-Bridge/Gravity-Bridge/module/x/gravity/types"
@@ -20,7 +21,7 @@ func NewMsgServerImpl(keeper Keeper) mgravitytypes.MsgServer {
 }
 
 func (m msgServer) SetOrchestratorAddress(c context.Context, msg *types.MsgSetOrchestratorAddress) (*types.MsgSetOrchestratorAddressResponse, error) {
-	servers := m.SubKeeperServers()
+	servers := m.SubKeeperServers(sdk.UnwrapSDKContext(c))
 	if len(servers) == 0 {
 		return nil, sdkerrors.Wrap(mgravitytypes.ErrChainNotFound, "")
 	}
@@ -34,7 +35,7 @@ func (m msgServer) SetOrchestratorAddress(c context.Context, msg *types.MsgSetOr
 }
 
 func (m msgServer) ValsetConfirm(c context.Context, msg *mgravitytypes.MsgValsetConfirm) (*mgravitytypes.MsgValsetConfirmResponse, error) {
-	server, err := m.SubKeeperServer(msg.ChainIdentifier)
+	server, err := m.SubKeeperServer(sdk.UnwrapSDKContext(c), msg.ChainIdentifier)
 	if err != nil {
 		return nil, err
 	}
@@ -51,7 +52,7 @@ func (m msgServer) ValsetConfirm(c context.Context, msg *mgravitytypes.MsgValset
 }
 
 func (m msgServer) SendToEth(c context.Context, msg *mgravitytypes.MsgSendToEth) (*mgravitytypes.MsgSendToEthResponse, error) {
-	server, err := m.SubKeeperServer(msg.ChainIdentifier)
+	server, err := m.SubKeeperServer(sdk.UnwrapSDKContext(c), msg.ChainIdentifier)
 	if err != nil {
 		return nil, err
 	}
@@ -68,7 +69,7 @@ func (m msgServer) SendToEth(c context.Context, msg *mgravitytypes.MsgSendToEth)
 }
 
 func (m msgServer) RequestBatch(c context.Context, msg *mgravitytypes.MsgRequestBatch) (*mgravitytypes.MsgRequestBatchResponse, error) {
-	server, err := m.SubKeeperServer(msg.ChainIdentifier)
+	server, err := m.SubKeeperServer(sdk.UnwrapSDKContext(c), msg.ChainIdentifier)
 	if err != nil {
 		return nil, err
 	}
@@ -83,7 +84,7 @@ func (m msgServer) RequestBatch(c context.Context, msg *mgravitytypes.MsgRequest
 }
 
 func (m msgServer) ConfirmBatch(c context.Context, msg *mgravitytypes.MsgConfirmBatch) (*mgravitytypes.MsgConfirmBatchResponse, error) {
-	server, err := m.SubKeeperServer(msg.ChainIdentifier)
+	server, err := m.SubKeeperServer(sdk.UnwrapSDKContext(c), msg.ChainIdentifier)
 	if err != nil {
 		return nil, err
 	}
@@ -101,7 +102,7 @@ func (m msgServer) ConfirmBatch(c context.Context, msg *mgravitytypes.MsgConfirm
 }
 
 func (m msgServer) ConfirmLogicCall(c context.Context, msg *mgravitytypes.MsgConfirmLogicCall) (*mgravitytypes.MsgConfirmLogicCallResponse, error) {
-	server, err := m.SubKeeperServer(msg.ChainIdentifier)
+	server, err := m.SubKeeperServer(sdk.UnwrapSDKContext(c), msg.ChainIdentifier)
 	if err != nil {
 		return nil, err
 	}
@@ -119,7 +120,7 @@ func (m msgServer) ConfirmLogicCall(c context.Context, msg *mgravitytypes.MsgCon
 }
 
 func (m msgServer) SendToCosmosClaim(c context.Context, msg *mgravitytypes.MsgSendToCosmosClaim) (*mgravitytypes.MsgSendToCosmosClaimResponse, error) {
-	server, err := m.SubKeeperServer(msg.ChainIdentifier)
+	server, err := m.SubKeeperServer(sdk.UnwrapSDKContext(c), msg.ChainIdentifier)
 	if err != nil {
 		return nil, err
 	}
@@ -139,7 +140,7 @@ func (m msgServer) SendToCosmosClaim(c context.Context, msg *mgravitytypes.MsgSe
 }
 
 func (m msgServer) ExecuteIbcAutoForwards(c context.Context, msg *mgravitytypes.MsgExecuteIbcAutoForwards) (*mgravitytypes.MsgExecuteIbcAutoForwardsResponse, error) {
-	server, err := m.SubKeeperServer(msg.ChainIdentifier)
+	server, err := m.SubKeeperServer(sdk.UnwrapSDKContext(c), msg.ChainIdentifier)
 	if err != nil {
 		return nil, err
 	}
@@ -154,7 +155,7 @@ func (m msgServer) ExecuteIbcAutoForwards(c context.Context, msg *mgravitytypes.
 }
 
 func (m msgServer) BatchSendToEthClaim(c context.Context, msg *mgravitytypes.MsgBatchSendToEthClaim) (*mgravitytypes.MsgBatchSendToEthClaimResponse, error) {
-	server, err := m.SubKeeperServer(msg.ChainIdentifier)
+	server, err := m.SubKeeperServer(sdk.UnwrapSDKContext(c), msg.ChainIdentifier)
 	if err != nil {
 		return nil, err
 	}
@@ -172,7 +173,7 @@ func (m msgServer) BatchSendToEthClaim(c context.Context, msg *mgravitytypes.Msg
 }
 
 func (m msgServer) ValsetUpdateClaim(c context.Context, msg *mgravitytypes.MsgValsetUpdatedClaim) (*mgravitytypes.MsgValsetUpdatedClaimResponse, error) {
-	server, err := m.SubKeeperServer(msg.ChainIdentifier)
+	server, err := m.SubKeeperServer(sdk.UnwrapSDKContext(c), msg.ChainIdentifier)
 	if err != nil {
 		return nil, err
 	}
@@ -192,7 +193,7 @@ func (m msgServer) ValsetUpdateClaim(c context.Context, msg *mgravitytypes.MsgVa
 }
 
 func (m msgServer) ERC20DeployedClaim(c context.Context, msg *mgravitytypes.MsgERC20DeployedClaim) (*mgravitytypes.MsgERC20DeployedClaimResponse, error) {
-	server, err := m.SubKeeperServer(msg.ChainIdentifier)
+	server, err := m.SubKeeperServer(sdk.UnwrapSDKContext(c), msg.ChainIdentifier)
 	if err != nil {
 		return nil, err
 	}
@@ -213,7 +214,7 @@ func (m msgServer) ERC20DeployedClaim(c context.Context, msg *mgravitytypes.MsgE
 }
 
 func (m msgServer) LogicCallExecutedClaim(c context.Context, msg *mgravitytypes.MsgLogicCallExecutedClaim) (*mgravitytypes.MsgLogicCallExecutedClaimResponse, error) {
-	server, err := m.SubKeeperServer(msg.ChainIdentifier)
+	server, err := m.SubKeeperServer(sdk.UnwrapSDKContext(c), msg.ChainIdentifier)
 	if err != nil {
 		return nil, err
 	}
@@ -231,7 +232,7 @@ func (m msgServer) LogicCallExecutedClaim(c context.Context, msg *mgravitytypes.
 }
 
 func (m msgServer) CancelSendToEth(c context.Context, msg *mgravitytypes.MsgCancelSendToEth) (*mgravitytypes.MsgCancelSendToEthResponse, error) {
-	server, err := m.SubKeeperServer(msg.ChainIdentifier)
+	server, err := m.SubKeeperServer(sdk.UnwrapSDKContext(c), msg.ChainIdentifier)
 	if err != nil {
 		return nil, err
 	}
@@ -246,7 +247,7 @@ func (m msgServer) CancelSendToEth(c context.Context, msg *mgravitytypes.MsgCanc
 }
 
 func (m msgServer) SubmitBadSignatureEvidence(c context.Context, msg *mgravitytypes.MsgSubmitBadSignatureEvidence) (*mgravitytypes.MsgSubmitBadSignatureEvidenceResponse, error) {
-	server, err := m.SubKeeperServer(msg.ChainIdentifier)
+	server, err := m.SubKeeperServer(sdk.UnwrapSDKContext(c), msg.ChainIdentifier)
 	if err != nil {
 		return nil, err
 	}

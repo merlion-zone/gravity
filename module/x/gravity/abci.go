@@ -1,11 +1,12 @@
 package gravity
 
 import (
-	"github.com/Gravity-Bridge/Gravity-Bridge/module/x/gravity/keeper"
-	"github.com/Gravity-Bridge/Gravity-Bridge/module/x/gravity/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+
+	"github.com/Gravity-Bridge/Gravity-Bridge/module/x/gravity/keeper"
+	"github.com/Gravity-Bridge/Gravity-Bridge/module/x/gravity/types"
 )
 
 // EndBlocker is called at the end of every block
@@ -60,6 +61,17 @@ func createValsets(ctx sdk.Context, k keeper.Keeper) {
 	}
 
 	if (latestValset == nil) || (lastUnbondingHeight == uint64(ctx.BlockHeight())) || significantPowerDiff {
+		// TODO
+		if latestValset == nil {
+			valid, err := k.IsCurrentValsetValid(ctx)
+			if err != nil {
+				panic(err)
+			}
+			if !valid {
+				return
+			}
+		}
+
 		// if the conditions are true, put in a new validator set request to be signed and submitted to Ethereum
 		k.SetValsetRequest(ctx)
 	}

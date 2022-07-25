@@ -14,7 +14,7 @@ func (k Keeper) SetChain(ctx sdk.Context, chainIdentifier string) {
 
 func (k Keeper) HasChain(ctx sdk.Context, chainIdentifier string) bool {
 	store := ctx.KVStore(k.storeKey)
-	return store.Has([]byte(chainIdentifier))
+	return store.Has(mgravitytypes.GetChainIdentifierKey(chainIdentifier))
 }
 
 func (k Keeper) AllChains(ctx sdk.Context) []string {

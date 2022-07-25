@@ -8,8 +8,8 @@ import (
 
 func ModuleBalanceInvariant(k Keeper) sdk.Invariant {
 	return func(ctx sdk.Context) (string, bool) {
-		for _, subKeeper := range k.SubKeepers() {
-			reason, broken := keeper.ModuleBalanceInvariant(subKeeper.Keeper)(ctx)
+		for _, subKeeper := range k.SubKeepers(ctx) {
+			reason, broken := keeper.ModuleBalanceInvariant(subKeeper)(ctx)
 			if broken {
 				return reason, broken
 			}
