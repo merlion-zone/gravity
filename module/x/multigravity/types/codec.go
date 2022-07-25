@@ -39,6 +39,11 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 	registry.RegisterInterface(
 		"gravity.v1beta1.EthereumClaim",
 		(*types.EthereumClaim)(nil),
+		&types.MsgSendToCosmosClaim{},
+		&types.MsgBatchSendToEthClaim{},
+		&types.MsgERC20DeployedClaim{},
+		&types.MsgLogicCallExecutedClaim{},
+		&types.MsgValsetUpdatedClaim{},
 		&MsgSendToCosmosClaim{},
 		&MsgBatchSendToEthClaim{},
 		&MsgERC20DeployedClaim{},

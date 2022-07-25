@@ -204,7 +204,7 @@ func (k Keeper) GetAttestationMapping(ctx sdk.Context) (attestationMapping map[u
 	k.IterateAttestations(ctx, false, func(_ []byte, att types.Attestation) bool {
 		claim, err := k.UnpackAttestationClaim(&att)
 		if err != nil {
-			panic("couldn't cast to claim")
+			panic(sdkerrors.Wrap(err, "couldn't cast to claim: "))
 		}
 
 		if val, ok := attestationMapping[claim.GetEventNonce()]; !ok {

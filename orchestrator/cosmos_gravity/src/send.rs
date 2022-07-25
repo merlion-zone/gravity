@@ -34,20 +34,20 @@ pub const TIMEOUT: Duration = Duration::from_secs(60);
 
 // gravity msg type urls
 pub const MSG_SET_ORCHESTRATOR_ADDRESS_TYPE_URL: &str = "/gravity.v1.MsgSetOrchestratorAddress";
-pub const MSG_VALSET_CONFIRM_TYPE_URL: &str = "/gravity.v1.MsgValsetConfirm";
-pub const MSG_CONFIRM_BATCH_TYPE_URL: &str = "/gravity.v1.MsgConfirmBatch";
-pub const MSG_CONFIRM_LOGIC_CALL_TYPE_URL: &str = "/gravity.v1.MsgConfirmLogicCall";
-pub const MSG_SEND_TO_COSMOS_CLAIM_TYPE_URL: &str = "/gravity.v1.MsgSendToCosmosClaim";
-pub const MSG_BATCH_SEND_TO_ETH_TYPE_URL: &str = "/gravity.v1.MsgBatchSendToEthClaim";
-pub const MSG_ERC20_DEPLOYED_CLAIM_TYPE_URL: &str = "/gravity.v1.MsgERC20DeployedClaim";
-pub const MSG_LOGIC_CALL_EXECUTED_CLAIM_TYPE_URL: &str = "/gravity.v1.MsgLogicCallExecutedClaim";
-pub const MSG_VALSET_UPDATED_CLAIM_TYPE_URL: &str = "/gravity.v1.MsgValsetUpdatedClaim";
-pub const MSG_SEND_TO_ETH_TYPE_URL: &str = "/gravity.v1.MsgSendToEth";
-pub const MSG_REQUEST_BATCH_TYPE_URL: &str = "/gravity.v1.MsgRequestBatch";
+pub const MSG_VALSET_CONFIRM_TYPE_URL: &str = "/multigravity.v1.MsgValsetConfirm";
+pub const MSG_CONFIRM_BATCH_TYPE_URL: &str = "/multigravity.v1.MsgConfirmBatch";
+pub const MSG_CONFIRM_LOGIC_CALL_TYPE_URL: &str = "/multigravity.v1.MsgConfirmLogicCall";
+pub const MSG_SEND_TO_COSMOS_CLAIM_TYPE_URL: &str = "/multigravity.v1.MsgSendToCosmosClaim";
+pub const MSG_BATCH_SEND_TO_ETH_TYPE_URL: &str = "/multigravity.v1.MsgBatchSendToEthClaim";
+pub const MSG_ERC20_DEPLOYED_CLAIM_TYPE_URL: &str = "/multigravity.v1.MsgERC20DeployedClaim";
+pub const MSG_LOGIC_CALL_EXECUTED_CLAIM_TYPE_URL: &str = "/multigravity.v1.MsgLogicCallExecutedClaim";
+pub const MSG_VALSET_UPDATED_CLAIM_TYPE_URL: &str = "/multigravity.v1.MsgValsetUpdatedClaim";
+pub const MSG_SEND_TO_ETH_TYPE_URL: &str = "/multigravity.v1.MsgSendToEth";
+pub const MSG_REQUEST_BATCH_TYPE_URL: &str = "/multigravity.v1.MsgRequestBatch";
 pub const MSG_SUBMIT_BAD_SIGNATURE_EVIDENCE_TYPE_URL: &str =
-    "/gravity.v1.MsgSubmitBadSignatureEvidence";
-pub const MSG_CANCEL_SEND_TO_ETH_TYPE_URL: &str = "/gravity.v1.MsgCancelSendToEth";
-pub const MSG_EXECUTE_IBC_AUTO_FORWARDS_TYPE_URL: &str = "/gravity.v1.MsgExecuteIbcAutoForwards";
+    "/multigravity.v1.MsgSubmitBadSignatureEvidence";
+pub const MSG_CANCEL_SEND_TO_ETH_TYPE_URL: &str = "/multigravity.v1.MsgCancelSendToEth";
+pub const MSG_EXECUTE_IBC_AUTO_FORWARDS_TYPE_URL: &str = "/multigravity.v1.MsgExecuteIbcAutoForwards";
 
 /// Send a transaction updating the eth address for the sending
 /// Cosmos address. The sending Cosmos address should be a validator

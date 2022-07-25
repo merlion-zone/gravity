@@ -4,7 +4,7 @@ use crate::{
     args::{SetEthereumKeyOpts, SetOrchestratorKeyOpts},
     config::{config_exists, load_keys, save_keys},
 };
-use deep_space::{CosmosPrivateKey, PrivateKey};
+use deep_space::{CosmosPrivateKey, EthermintPrivateKey, PrivateKey};
 use std::{path::Path, process::exit};
 
 pub fn show_keys(home_dir: &Path, prefix: &str) {
@@ -47,7 +47,7 @@ pub fn set_orchestrator_key(home_dir: &Path, opts: SetOrchestratorKeyOpts) {
         error!("Please run `gbt init` before running this command!");
         exit(1);
     }
-    let res = CosmosPrivateKey::from_phrase(&opts.phrase, "");
+    let res = EthermintPrivateKey::from_phrase(&opts.phrase, "");
     if let Err(e) = res {
         error!("Invalid Cosmos mnemonic phrase {} {:?}", opts.phrase, e);
         exit(1);
