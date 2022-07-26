@@ -236,7 +236,7 @@ impl From<TomlBatchRelayingMode> for BatchRelayingMode {
 
 fn default_batch_relaying_mode() -> TomlBatchRelayingMode {
     TomlBatchRelayingMode {
-        mode: "ProfitableOnly".to_string(),
+        mode: "Altruistic".to_string(),
         margin: Some(1.1),
         whitelist: None,
     }
@@ -254,11 +254,11 @@ fn default_valset_relaying_mode() -> TomlValsetRelayingMode {
 }
 
 fn default_batch_request_mode() -> BatchRequestMode {
-    BatchRequestMode::ProfitableOnly
+    BatchRequestMode::Altruistic
 }
 
 fn default_relayer_loop_speed() -> u64 {
-    600
+    30
 }
 
 fn default_gas_tracker_loop_speed() -> u64 {

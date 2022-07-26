@@ -91,10 +91,16 @@ func NewKeeper(
 	accKeeper *authkeeper.AccountKeeper,
 	ibcTransferKeeper *ibctransferkeeper.Keeper,
 	bech32IbcKeeper *bech32ibckeeper.Keeper,
+	chainIdentifier ...string,
 ) Keeper {
 	// set KeyTable if it has not already been set
 	if !paramSpace.HasKeyTable() {
 		paramSpace = paramSpace.WithKeyTable(types.ParamKeyTable())
+	}
+
+	var cid string
+	if len(chainIdentifier) > 0 {
+		cid = chainIdentifier[0]
 	}
 
 	k := Keeper{
@@ -110,6 +116,7 @@ func NewKeeper(
 		ibcTransferKeeper:  ibcTransferKeeper,
 		bech32IbcKeeper:    bech32IbcKeeper,
 		AttestationHandler: nil,
+		ChainIdentifier:    cid,
 	}
 	attestationHandler := AttestationHandler{keeper: &k}
 	attestationHandler.ValidateMembers()

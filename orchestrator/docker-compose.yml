@@ -1,0 +1,126 @@
+version: '3'
+
+services:
+  mergravity0:
+    container_name: mergravity0
+    image: "merlionzone/mergravity"
+    environment:
+      - CHAIN_IDENTIFIER=${CHAIN_IDENTIFIER:-gravity-1}
+    command:
+      - orchestrator
+      - --cosmos-grpc
+      - http://192.168.10.2:9090
+      - --ethereum-rpc
+      - http://192.168.11.2:8545
+      - -c
+      - "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon able abuse"
+      - -e
+      - "0x7a38ffabff77b877260f90d1d326bdfa7d22c9f407f5c29128edc7359419733a"
+      - --fees
+      - 0alion
+    networks:
+      localnet:
+        ipv4_address: 192.168.10.102
+      bridging-localnet:
+        ipv4_address: 192.168.11.102
+
+  mergravity1:
+    container_name: mergravity1
+    image: "merlionzone/mergravity"
+    environment:
+      - CHAIN_IDENTIFIER=${CHAIN_IDENTIFIER:-gravity-1}
+    command:
+      - orchestrator
+      - --cosmos-grpc
+      - http://192.168.10.3:9090
+      - --ethereum-rpc
+      - http://192.168.11.3:8545
+      - -c
+      - "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon able adjust"
+      - -e
+      - "0xe50a1f2f02ffe978474761043fca835ee619778bae10c0effe06ff6db2a6539f"
+      - --fees
+      - 0alion
+    networks:
+      localnet:
+        ipv4_address: 192.168.10.103
+      bridging-localnet:
+        ipv4_address: 192.168.11.103
+
+  mergravity2:
+    container_name: mergravity2
+    image: "merlionzone/mergravity"
+    environment:
+      - CHAIN_IDENTIFIER=${CHAIN_IDENTIFIER:-gravity-1}
+    command:
+      - orchestrator
+      - --cosmos-grpc
+      - http://192.168.10.4:9090
+      - --ethereum-rpc
+      - http://192.168.11.4:8545
+      - -c
+      - "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon able again"
+      - -e
+      - "0x6adc3ffd17ec35ad241d8c0a5a92d1055ba6170d1e1ca0273728ac2baa5d3a04"
+      - --fees
+      - 0alion
+    networks:
+      localnet:
+        ipv4_address: 192.168.10.104
+      bridging-localnet:
+        ipv4_address: 192.168.11.104
+
+  mergravity3:
+    container_name: mergravity3
+    image: "merlionzone/mergravity"
+    environment:
+      - CHAIN_IDENTIFIER=${CHAIN_IDENTIFIER:-gravity-1}
+    command:
+      - orchestrator
+      - --cosmos-grpc
+      - http://192.168.10.5:9090
+      - --ethereum-rpc
+      - http://192.168.11.5:8545
+      - -c
+      - "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon able amateur"
+      - -e
+      - "0x5f79d4c4acab705f42649ba87417839330824521d20e1d740458e7b5840e0996"
+      - --fees
+      - 0alion
+    networks:
+      localnet:
+        ipv4_address: 192.168.10.105
+      bridging-localnet:
+        ipv4_address: 192.168.11.105
+
+  mergravity-relayer0:
+    container_name: mergravity-relayer0
+    image: "merlionzone/mergravity"
+    environment:
+      - CHAIN_IDENTIFIER=${CHAIN_IDENTIFIER:-gravity-1}
+      - RUST_LOG=info,relayer=trace
+    command:
+      - relayer
+      - --cosmos-grpc
+      - http://192.168.10.5:9090
+      - --ethereum-rpc
+      - http://192.168.11.5:8545
+      - --cosmos-phrase
+      - "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon able ankle"
+      - --ethereum-key
+      - "0xbee2f6c9c86d45365fe5646f718b576352bae5bb36231d07b3e8ac445a149c6b"
+      - --fees
+      - 0alion
+    networks:
+      localnet:
+        ipv4_address: 192.168.10.106
+      bridging-localnet:
+        ipv4_address: 192.168.11.106
+
+networks:
+  localnet:
+    name: merlion_localnet
+    external: true
+  bridging-localnet:
+    name: merlion_bridging-localnet
+    external: true

@@ -114,8 +114,8 @@ func (k Keeper) loadSubKeeper(chainIdentifier string) keeper.Keeper {
 		k.accountKeeper,
 		k.ibcTransferKeeper,
 		k.bech32IbcKeeper,
+		chainIdentifier,
 	)
-	subKeeper.ChainIdentifier = chainIdentifier
 
 	return subKeeper
 }

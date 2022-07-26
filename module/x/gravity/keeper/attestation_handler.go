@@ -44,6 +44,7 @@ func (a AttestationHandler) Handle(ctx sdk.Context, att types.Attestation, claim
 
 	case *types.MsgERC20DeployedClaim:
 
+		ctx.Logger().Info("MsgERC20DeployedClaim", "denom", claim.CosmosDenom, "name", claim.Name, "symbol", claim.Symbol, "decimals", claim.Decimals, "token", claim.TokenContract)
 		return a.handleErc20Deployed(ctx, *claim)
 
 	case *types.MsgValsetUpdatedClaim:

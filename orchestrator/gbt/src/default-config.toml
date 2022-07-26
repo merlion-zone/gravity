@@ -8,7 +8,7 @@ relayer_enabled = false
 # requests for batches sent on the Gravity Bridge side, consumes bridge chain
 # tx fees
 [relayer]
-batch_request_mode = "ProfitableOnly"
+batch_request_mode = "Altruistic"
 
 # After requesting a batch, delay the relayer 45 seconds before attempting
 # to relay batches to give the chain time to process the batch request
@@ -44,7 +44,7 @@ mode = "Altruistic"
 # margin = 1.5
 
 [relayer.batch_relaying_mode]
-mode = "ProfitableOnly"
+mode = "Altruistic"
 margin = 1.1
 
 # Use whitelist mode to relay tokens which may not be listed
